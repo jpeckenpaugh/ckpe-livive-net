@@ -3,7 +3,7 @@
  * Projects 3D biomechanical rig onto 2D canvas with calibrated video/image underlays.
  */
 
-import { DEG, v3, vAdd, vScale, vDot, vNorm } from './math3d.js';
+import { DEG, v3, vAdd, vScale, vNorm } from './math3d.js';
 
 export class CKPERenderer {
   constructor(canvas, rig) {
@@ -33,9 +33,9 @@ export class CKPERenderer {
   }
 
   render(options = {}) {
-    const { ctx, canvas, rig, camera, dpr } = this;
-    const width = canvas.width / dpr;
-    const height = canvas.height / dpr;
+    const { ctx, canvas, rig, dpr } = this;
+    const width = (canvas.width / dpr) || 640;
+    const height = (canvas.height / dpr) || 480;
 
     ctx.save();
     ctx.scale(dpr, dpr);
@@ -44,21 +44,20 @@ export class CKPERenderer {
     const skel = rig.computeSkeleton(options.rigState);
     const displayMode = options.displayMode || 'overlay'; // 'overlay', 'rig', 'sample'
 
-    // Coordinate projector for Front View
-    // Rig reference bounds:
-    // Pelvis Y ~ 0, C7 Y ~ 45, Head Crown Y ~ 72, Arm span ~ 120
-    const margin = 20;
-    const viewW = width - margin * 2;
-    const viewH = height - margin * 2;
-
-    // Anchor center X at width / 2, baseline pelvis Y at bottom area
+    // Anatomical Front View Framing:
+    // Pelvis is at Y = 0, C7 at Y = 265, Head Crown at Y = 385.
+    // Shoulder span is -95 to +95 with lateral reach up to ~180.
+    // Center Y at ~195 (mid-spine/chest).
+    // Total vertical span: ~440 units (with padding from -20 to 420).
+    // Total horizontal span: ~360 units (-180 to +180).
+    const pad = 24;
+    const spanX = 360;
+    const spanY = 440;
+    const scale = Math.min((width - pad * 2) / spanX, (height - pad * 2) / spanY);
     const worldCenterX = 0;
-    const worldCenterY = 32; // mid-chest
-    const worldSpan = 90; // vertical span in rig units
-
-    const scale = Math.min(viewW / 85, viewH / worldSpan);
+    const worldCenterY = 195;
     const screenCenterX = width / 2;
-    const screenCenterY = height / 2 + 10;
+    const screenCenterY = height / 2;
 
     const project = (pt) => ({
       x: screenCenterX + (pt.x - worldCenterX) * scale,
@@ -66,7 +65,7 @@ export class CKPERenderer {
       depth: pt.z
     });
 
-    const view = { x: margin, y: margin, w: viewW, h: viewH };
+    const view = { x: 0, y: 0, w: width, h: height };
 
     // 1. Draw Sample Underlay (if mode is 'overlay' or 'sample')
     if (displayMode !== 'rig' && options.underlay) {
@@ -74,7 +73,7 @@ export class CKPERenderer {
       this.drawUnderlay(ctx, options.underlay, view, project, options.calib, alpha);
     }
 
-    // 2. Draw Floor/Wall Grid
+    // 2. Draw Floor/Wall Grid & Ground Shadow
     if (displayMode !== 'sample') {
       this.drawFrontGrid(ctx, project, width, height);
       this.drawGroundShadow(ctx, skel, project, scale);
@@ -159,24 +158,25 @@ export class CKPERenderer {
   }
 
   drawFrontGrid(ctx, project, width, height) {
-    const extent = 180;
-    const step = 40;
+    const extent = 260;
+    const step = 52;
     ctx.save();
     ctx.lineWidth = 1;
 
+    // Floor Y = 0 up to top of wall Y = 480
     for (let xVal = -extent; xVal <= extent; xVal += step) {
-      const alpha = xVal === 0 ? 0.18 : 0.06;
+      const alpha = xVal === 0 ? 0.20 : 0.07;
       ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
-      const a = project(v3(xVal, -10, 0));
-      const b = project(v3(xVal, 90, 0));
+      const a = project(v3(xVal, 0, 0));
+      const b = project(v3(xVal, 480, 0));
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
       ctx.stroke();
     }
 
-    for (let yVal = 0; yVal <= 90; yVal += 20) {
-      const alpha = yVal === 0 ? 0.25 : 0.06;
+    for (let yVal = 0; yVal <= 480; yVal += step) {
+      const alpha = yVal === 0 ? 0.24 : 0.07;
       ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
       const a = project(v3(-extent, yVal, 0));
       const b = project(v3(extent, yVal, 0));
@@ -258,6 +258,7 @@ export class CKPERenderer {
   drawSegments(ctx, skel, project) {
     ctx.save();
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
     skel.segments.forEach(seg => {
       const a = project(seg.from);
@@ -267,12 +268,12 @@ export class CKPERenderer {
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
-      ctx.lineWidth = isRightArm ? (seg.width || 6) * 1.2 : (seg.width || 5);
+      ctx.lineWidth = isRightArm ? 6.5 : (seg.width || 5);
       ctx.strokeStyle = isRightArm ? '#38bdf8' : (seg.color || '#94a3b8');
 
       if (isRightArm) {
-        ctx.shadowColor = 'rgba(56, 189, 248, 0.5)';
-        ctx.shadowBlur = 8;
+        ctx.shadowColor = 'rgba(56, 189, 248, 0.55)';
+        ctx.shadowBlur = 10;
       } else {
         ctx.shadowBlur = 0;
       }
@@ -285,16 +286,16 @@ export class CKPERenderer {
 
   drawJoints(ctx, skel, project) {
     const joints = [
-      { id: 'pelvis', pt: skel.pelvis, r: 4 },
-      { id: 'c7', pt: skel.c7, r: 4 },
-      { id: 'c1', pt: skel.c1, r: 3 },
-      { id: 'chin', pt: skel.chin, r: 3 },
-      { id: 'rightShoulder', pt: skel.rightShoulder, r: 6, hot: true },
-      { id: 'leftShoulder', pt: skel.leftShoulder, r: 4 },
-      { id: 'rightElbow', pt: skel.rightElbow, r: 6, hot: true },
-      { id: 'leftElbow', pt: skel.leftElbow, r: 4 },
-      { id: 'rightWrist', pt: skel.rightWrist, r: 6, hot: true },
-      { id: 'leftWrist', pt: skel.leftWrist, r: 4 }
+      { id: 'pelvis', pt: skel.pelvis, r: 5 },
+      { id: 'c7', pt: skel.c7, r: 5 },
+      { id: 'c1', pt: skel.c1, r: 4 },
+      { id: 'chin', pt: skel.chin, r: 4 },
+      { id: 'rightShoulder', pt: skel.rightShoulder, r: 6.5, hot: true },
+      { id: 'leftShoulder', pt: skel.leftShoulder, r: 5 },
+      { id: 'rightElbow', pt: skel.rightElbow, r: 6.5, hot: true },
+      { id: 'leftElbow', pt: skel.leftElbow, r: 5 },
+      { id: 'rightWrist', pt: skel.rightWrist, r: 6.5, hot: true },
+      { id: 'leftWrist', pt: skel.leftWrist, r: 5 }
     ];
 
     ctx.save();
@@ -302,8 +303,8 @@ export class CKPERenderer {
       const pt = project(j.pt);
       ctx.beginPath();
       ctx.arc(pt.x, pt.y, j.r, 0, Math.PI * 2);
-      ctx.fillStyle = j.hot ? '#0284c7' : '#475569';
-      ctx.strokeStyle = j.hot ? '#e0f2fe' : '#cbd5e1';
+      ctx.fillStyle = j.hot ? '#0284c7' : '#334155';
+      ctx.strokeStyle = j.hot ? '#e0f2fe' : '#94a3b8';
       ctx.lineWidth = j.hot ? 2 : 1.5;
       if (j.hot) {
         ctx.shadowColor = '#38bdf8';
@@ -318,7 +319,6 @@ export class CKPERenderer {
   }
 
   drawHandTipMarker(ctx, handTip, project, calib, media) {
-    // Project handTip from calibrated image coordinate space
     if (!handTip || !media) return;
     const natW = media.videoWidth || media.naturalWidth || 640;
     const natH = media.videoHeight || media.naturalHeight || 480;

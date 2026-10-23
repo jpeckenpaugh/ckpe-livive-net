@@ -235,6 +235,15 @@ class CKPEApp {
       el.style.display = (name === viewName) ? 'block' : 'none';
     });
     window.scrollTo(0, 0);
+
+    if (viewName === 'detail' && this.renderer) {
+      requestAnimationFrame(() => {
+        this.renderer.resize();
+        if (this.currentTermData) {
+          this.renderCurrentFrame();
+        }
+      });
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -386,6 +395,9 @@ class CKPEApp {
       if (data.video && data.source === 'learned') {
         this.detailVideo.src = data.video;
         this.detailVideo.load();
+        this.detailVideo.onloadeddata = () => {
+          this.renderCurrentFrame();
+        };
       } else {
         this.detailVideo.removeAttribute('src');
       }
@@ -523,7 +535,7 @@ class CKPEApp {
     const frame = this.currentTermData.frames[this.currentFrameIdx];
     if (!frame) return;
 
-    const underlaySource = (this.currentTermData.source === 'learned' && this.detailVideo.readyState >= 2)
+    const underlaySource = (this.currentTermData.source === 'learned' && this.detailVideo.readyState >= 1)
       ? this.detailVideo
       : null;
 
