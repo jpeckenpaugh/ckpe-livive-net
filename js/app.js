@@ -28,12 +28,14 @@ class CKPEApp {
     this.views = {
       index: document.getElementById('view-index'),
       detail: document.getElementById('view-detail'),
+      speech: document.getElementById('view-speech'),
       provenance: document.getElementById('view-provenance')
     };
 
     this.navBtns = {
       index: document.getElementById('nav-index'),
       detail: document.getElementById('nav-detail'),
+      speech: document.getElementById('nav-speech'),
       provenance: document.getElementById('nav-provenance')
     };
 
@@ -87,6 +89,41 @@ class CKPEApp {
     this.metaPhaseSplit = document.getElementById('metaPhaseSplit');
     this.metaLocation = document.getElementById('metaLocation');
     this.metaMovement = document.getElementById('metaMovement');
+
+    // Speech-to-Sign DOM
+    this.micBtn = document.getElementById('micBtn');
+    this.micLabel = document.getElementById('micLabel');
+    this.speechTextInput = document.getElementById('speechTextInput');
+    this.speechClearBtn = document.getElementById('speechClearBtn');
+    this.speechAutocomplete = document.getElementById('speechAutocomplete');
+    this.speechPlayBtn = document.getElementById('speechPlayBtn');
+    this.speechStatusBanner = document.getElementById('speechStatusBanner');
+    this.speechStatusText = document.getElementById('speechStatusText');
+    this.speechSentenceRow = document.getElementById('speechSentenceRow');
+    this.speechChipsContainer = document.getElementById('speechChipsContainer');
+    this.speechCanvas = document.getElementById('speechCanvas');
+    this.speechActiveWordBadge = document.getElementById('speechActiveWordBadge');
+    this.speechCornerViewsBtn = document.getElementById('speechCornerViewsBtn');
+    this.speechReplayBtn = document.getElementById('speechReplayBtn');
+    this.speechPauseBtn = document.getElementById('speechPauseBtn');
+    this.speechProgressText = document.getElementById('speechProgressText');
+    this.speechInspectBtn = document.getElementById('speechInspectBtn');
+    this.speechCardTitle = document.getElementById('speechCardTitle');
+    this.speechCardBadge = document.getElementById('speechCardBadge');
+    this.speechCardDesc = document.getElementById('speechCardDesc');
+    this.speechMetaTerm = document.getElementById('speechMetaTerm');
+    this.speechMetaPhonology = document.getElementById('speechMetaPhonology');
+    this.speechMetaFrames = document.getElementById('speechMetaFrames');
+
+    // Speech state
+    this.speechRecognition = null;
+    this.isListening = false;
+    this.speechRafId = null;
+    this.speechIsPlaying = false;
+    this.speechFrames = [];
+    this.speechFrameIdx = 0;
+    this.speechLastFrameTime = 0;
+    this.speechCurrentTerms = [];
   }
 
   async init() {
@@ -96,6 +133,9 @@ class CKPEApp {
       this.rigSpec = await specRes.json();
       this.rig = new Rig3D(this.rigSpec);
       this.renderer = new CKPERenderer(this.detailCanvas, this.rig);
+      if (this.speechCanvas) {
+        this.speechRenderer = new CKPERenderer(this.speechCanvas, this.rig);
+      }
 
       // 2. Fetch Catalog Index
       const indexRes = await fetch('data/index.json');
@@ -109,8 +149,9 @@ class CKPEApp {
       document.getElementById('count-learned').textContent = learnedCount;
       document.getElementById('count-authored').textContent = authoredCount;
 
-      // 3. Setup Events & Routing
+      // 3. Setup Events, Speech View, & Routing
       this.bindEvents();
+      this.initSpeechView();
       this.renderIndexGrid();
       this.handleHashChange();
 
@@ -118,6 +159,10 @@ class CKPEApp {
       window.addEventListener('resize', () => {
         this.renderer.resize();
         if (this.currentTermData) this.renderCurrentFrame();
+        if (this.speechRenderer) {
+          this.speechRenderer.resize();
+          this.renderSpeechCurrentFrame();
+        }
       });
 
       console.log('CKPE SPA initialized with', this.catalog.length, 'terms.');
@@ -272,6 +317,10 @@ class CKPEApp {
         const defaultTerm = this.currentTermData ? this.currentTermData.term : this.catalog[0].term;
         window.location.hash = `#/detail/${defaultTerm}`;
       }
+    } else if (hash.startsWith('#/speech')) {
+      if (this.isPlaying) this.pause();
+      this.switchView('speech');
+      this.navBtns.speech.classList.add('active');
     } else if (hash.startsWith('#/provenance')) {
       if (this.isPlaying) this.pause();
       this.switchView('provenance');
@@ -295,6 +344,13 @@ class CKPEApp {
         if (this.currentTermData) {
           this.renderCurrentFrame();
         }
+      });
+    }
+
+    if (viewName === 'speech' && this.speechRenderer) {
+      requestAnimationFrame(() => {
+        this.speechRenderer.resize();
+        this.renderSpeechCurrentFrame();
       });
     }
   }
@@ -916,6 +972,468 @@ class CKPEApp {
     setTimeout(() => {
       this.play();
     }, 150);
+  }
+
+  // --------------------------------------------------------------------------
+  // Speech-to-Sign & Autocomplete Controller
+  // --------------------------------------------------------------------------
+  initSpeechView() {
+    if (!this.speechCanvas) return;
+
+    // Corner views toggle in speech canvas
+    if (this.speechCornerViewsBtn) {
+      this.speechCornerViewsBtn.addEventListener('click', () => {
+        this.showCornerViews = !this.showCornerViews;
+        this.speechCornerViewsBtn.classList.toggle('active', this.showCornerViews);
+        if (this.toggleCornerViewsBtn) {
+          this.toggleCornerViewsBtn.classList.toggle('active', this.showCornerViews);
+        }
+        this.renderSpeechCurrentFrame();
+      });
+    }
+
+    // Playback control buttons
+    if (this.speechReplayBtn) {
+      this.speechReplayBtn.addEventListener('click', () => {
+        if (this.speechFrames.length > 0) {
+          this.speechFrameIdx = 0;
+          this.playSpeechLoop();
+        }
+      });
+    }
+
+    if (this.speechPauseBtn) {
+      this.speechPauseBtn.addEventListener('click', () => {
+        if (this.speechIsPlaying) {
+          this.pauseSpeechLoop();
+        } else if (this.speechFrames.length > 0) {
+          this.playSpeechLoop();
+        }
+      });
+    }
+
+    // Submit button
+    if (this.speechPlayBtn) {
+      this.speechPlayBtn.addEventListener('click', () => {
+        const query = this.speechTextInput.value.trim();
+        if (query) this.runSpeechSign(query);
+      });
+    }
+
+    // Clear text button
+    if (this.speechClearBtn) {
+      this.speechClearBtn.addEventListener('click', () => {
+        this.speechTextInput.value = '';
+        this.speechClearBtn.style.display = 'none';
+        this.closeAutocomplete();
+        this.speechTextInput.focus();
+      });
+    }
+
+    // Autocomplete input listeners
+    if (this.speechTextInput) {
+      this.speechTextInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        this.speechClearBtn.style.display = val ? 'block' : 'none';
+        this.handleAutocomplete(val);
+      });
+
+      this.speechTextInput.addEventListener('keydown', (e) => {
+        this.handleAutocompleteKeydown(e);
+      });
+
+      // Close autocomplete on click outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.speech-input-wrap')) {
+          this.closeAutocomplete();
+        }
+      });
+    }
+
+    // Quick suggestion pills
+    const suggestionPills = document.querySelectorAll('.speech-suggestion-pill');
+    suggestionPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const text = pill.dataset.text;
+        this.speechTextInput.value = text;
+        this.speechClearBtn.style.display = 'block';
+        this.closeAutocomplete();
+        this.runSpeechSign(text);
+      });
+    });
+
+    // Initialize Web Speech Recognition
+    this.initSpeechRecognition();
+  }
+
+  initSpeechRecognition() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      if (this.speechStatusText) {
+        this.speechStatusText.textContent = 'Microphone speech recognition is not supported in this browser; keyboard typing with autocomplete is fully enabled.';
+      }
+      if (this.micBtn) {
+        this.micBtn.style.opacity = '0.6';
+        this.micBtn.title = 'Speech Recognition not supported in this browser. Use keyboard typing.';
+      }
+      return;
+    }
+
+    try {
+      this.speechRecognition = new SpeechRec();
+      this.speechRecognition.continuous = false;
+      this.speechRecognition.interimResults = false;
+      this.speechRecognition.lang = 'en-US';
+
+      this.speechRecognition.onstart = () => {
+        this.isListening = true;
+        this.micBtn.classList.add('listening');
+        this.micLabel.textContent = 'Listening...';
+        this.speechStatusText.textContent = 'Listening... Speak a sign or phrase (e.g. "Hello", "Thank you", "Water", "Friend").';
+      };
+
+      this.speechRecognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.trim();
+        this.speechTextInput.value = transcript;
+        this.speechClearBtn.style.display = 'block';
+        this.speechStatusText.textContent = `Heard: "${transcript}" — processing sequence...`;
+        this.runSpeechSign(transcript);
+      };
+
+      this.speechRecognition.onerror = (event) => {
+        console.warn('Speech recognition error:', event.error);
+        this.speechStatusText.textContent = `Microphone notice: ${event.error}. You can also type any word directly.`;
+      };
+
+      this.speechRecognition.onend = () => {
+        this.isListening = false;
+        this.micBtn.classList.remove('listening');
+        this.micLabel.textContent = 'Speak Sign';
+      };
+
+      this.micBtn.addEventListener('click', () => {
+        if (this.isListening) {
+          this.speechRecognition.stop();
+        } else {
+          try {
+            this.speechRecognition.start();
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+      });
+    } catch (err) {
+      console.warn('Failed to initialize SpeechRecognition:', err);
+    }
+  }
+
+  handleAutocomplete(query) {
+    if (!this.speechAutocomplete) return;
+    const q = query.trim().toLowerCase();
+    if (!q) {
+      this.closeAutocomplete();
+      return;
+    }
+
+    // Match against catalog
+    const matches = this.catalog.filter(item => {
+      const label = item.label.toLowerCase();
+      const term = item.term.toLowerCase();
+      return label.includes(q) || term.includes(q);
+    }).slice(0, 8);
+
+    if (matches.length === 0) {
+      this.closeAutocomplete();
+      return;
+    }
+
+    this.speechAutocomplete.innerHTML = matches.map((m, idx) => `
+      <div class="autocomplete-item ${idx === 0 ? 'selected' : ''}" data-term="${m.term}" data-label="${m.label}">
+        <span class="autocomplete-label">${m.label}</span>
+        <span class="autocomplete-meta">${m.source} &bull; ${m.location?.major || 'Neutral'}</span>
+      </div>
+    `).join('');
+
+    this.speechAutocomplete.style.display = 'block';
+
+    const items = this.speechAutocomplete.querySelectorAll('.autocomplete-item');
+    items.forEach(item => {
+      item.addEventListener('click', () => {
+        this.speechTextInput.value = item.dataset.label;
+        this.speechClearBtn.style.display = 'block';
+        this.closeAutocomplete();
+        this.runSpeechSign(item.dataset.label);
+      });
+    });
+  }
+
+  handleAutocompleteKeydown(e) {
+    if (!this.speechAutocomplete || this.speechAutocomplete.style.display === 'none') {
+      if (e.key === 'Enter') {
+        const val = this.speechTextInput.value.trim();
+        if (val) this.runSpeechSign(val);
+      }
+      return;
+    }
+
+    const items = Array.from(this.speechAutocomplete.querySelectorAll('.autocomplete-item'));
+    if (items.length === 0) return;
+
+    const currentIdx = items.findIndex(it => it.classList.contains('selected'));
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIdx = (currentIdx + 1) % items.length;
+      items.forEach(it => it.classList.remove('selected'));
+      items[nextIdx].classList.add('selected');
+      items[nextIdx].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIdx = (currentIdx - 1 + items.length) % items.length;
+      items.forEach(it => it.classList.remove('selected'));
+      items[prevIdx].classList.add('selected');
+      items[prevIdx].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter' || e.key === 'Tab') {
+      if (currentIdx >= 0) {
+        e.preventDefault();
+        const selected = items[currentIdx];
+        this.speechTextInput.value = selected.dataset.label;
+        this.closeAutocomplete();
+        this.runSpeechSign(selected.dataset.label);
+      }
+    } else if (e.key === 'Escape') {
+      this.closeAutocomplete();
+    }
+  }
+
+  closeAutocomplete() {
+    if (this.speechAutocomplete) {
+      this.speechAutocomplete.style.display = 'none';
+      this.speechAutocomplete.innerHTML = '';
+    }
+  }
+
+  parseInputToTerms(text) {
+    const raw = text.toLowerCase().replace(/[,.?!]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!raw) return [];
+
+    const aliases = {
+      'yes': 'agree',
+      'no': 'disagree',
+      'nod': 'agree',
+      'shake': 'disagree',
+      'right': 'point-right',
+      'left': 'point-left',
+      'me': 'point-me',
+      'you': 'point-you',
+      'it': 'point-it',
+      'candy': 'candy_1',
+      'corn': 'corn_2',
+      'eat': 'eat_1',
+      'fine': 'fine_1',
+      'stand': 'stand_1',
+      'what': 'what_1',
+      'thankyou': 'thank_you',
+      'thanks': 'thank_you',
+      'thank': 'thank_you',
+      'hands': 'hands-up',
+      'hat': 'hats-off',
+      'hats': 'hats-off',
+      'rest': 'reset',
+      'relax': 'reset'
+    };
+
+    const multiWordPhrases = [
+      { phrase: 'we don\'t go left', term: 'we-dont-go-left' },
+      { phrase: 'we dont go left', term: 'we-dont-go-left' },
+      { phrase: 'we go right', term: 'we-go-right' },
+      { phrase: 'thank you', term: 'thank_you' },
+      { phrase: 'hands up', term: 'hands-up' },
+      { phrase: 'hats off', term: 'hats-off' },
+      { phrase: 'point you', term: 'point-you' },
+      { phrase: 'point me', term: 'point-me' },
+      { phrase: 'point right', term: 'point-right' },
+      { phrase: 'point left', term: 'point-left' },
+      { phrase: 'point it', term: 'point-it' }
+    ];
+
+    let remaining = ' ' + raw + ' ';
+    const matchedTokens = [];
+
+    // Check multi-word phrases first
+    multiWordPhrases.forEach(m => {
+      const needle = ' ' + m.phrase + ' ';
+      if (remaining.includes(needle)) {
+        matchedTokens.push({ text: m.phrase, term: m.term });
+        remaining = remaining.replace(needle, ' ');
+      }
+    });
+
+    // Check single word tokens
+    const singleWords = remaining.trim().split(/\s+/).filter(Boolean);
+    singleWords.forEach(w => {
+      let resolvedTerm = aliases[w] || w;
+      const foundInCat = this.catalog.find(c => c.term.toLowerCase() === resolvedTerm || c.label.toLowerCase() === resolvedTerm);
+      if (foundInCat) {
+        matchedTokens.push({ text: w, term: foundInCat.term });
+      } else {
+        matchedTokens.push({ text: w, term: null });
+      }
+    });
+
+    return matchedTokens;
+  }
+
+  async runSpeechSign(text) {
+    const tokens = this.parseInputToTerms(text);
+    if (tokens.length === 0) return;
+
+    // Render sentence chips
+    this.speechSentenceRow.style.display = 'flex';
+    this.speechChipsContainer.innerHTML = tokens.map((tok, idx) => {
+      const isRecognized = !!tok.term;
+      return `
+        <span class="sentence-chip ${!isRecognized ? 'chip-missing' : ''}" id="chip-step-${idx}">
+          ${idx + 1}. ${tok.text} ${isRecognized ? '✓' : '(?)'}
+        </span>
+      `;
+    }).join('');
+
+    const recognizedTerms = tokens.filter(t => t.term).map(t => t.term);
+    if (recognizedTerms.length === 0) {
+      this.speechStatusText.textContent = `No matching ASL vocabulary found for "${text}". Try "hello", "water", "friend", "thank you", or "we go right".`;
+      return;
+    }
+
+    this.speechStatusText.textContent = `Executing sequence: ${recognizedTerms.map(t => t.replace('_', ' ')).join(' → ')}...`;
+
+    // Fetch all term data
+    const termDataList = [];
+    for (const termName of recognizedTerms) {
+      let data = this.cachedTerms.get(termName);
+      if (!data) {
+        try {
+          const res = await fetch(`data/terms/${termName}.json`);
+          if (res.ok) {
+            data = await res.json();
+            this.cachedTerms.set(termName, data);
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+      }
+      if (data) termDataList.push(data);
+    }
+
+    if (termDataList.length === 0) return;
+
+    // Update metadata card with the primary/first sign
+    const firstData = termDataList[0];
+    this.speechCardTitle.textContent = termDataList.length > 1
+      ? `Chained Sequence (${termDataList.length} signs)`
+      : firstData.label;
+    this.speechCardBadge.className = `badge ${firstData.source === 'learned' ? 'badge-learned' : 'badge-authored'}`;
+    this.speechCardBadge.textContent = firstData.source;
+    this.speechMetaTerm.textContent = termDataList.map(d => d.label).join(' → ');
+    this.speechMetaPhonology.textContent = `${firstData.location?.major || 'Neutral'} • ${firstData.movement || 'Natural Movement'}`;
+    this.speechMetaFrames.textContent = `${termDataList.reduce((acc, d) => acc + d.frame_count, 0)} frames total`;
+
+    // Setup detail inspect button
+    this.speechInspectBtn.style.display = 'inline-flex';
+    this.speechInspectBtn.href = `#/detail/${firstData.term}`;
+
+    // Combine frames
+    const stitchedFrames = [];
+    const termTimeline = []; // records frame index ranges for each term
+
+    termDataList.forEach((tData) => {
+      const startIdx = stitchedFrames.length;
+      tData.frames.forEach(f => {
+        stitchedFrames.push({
+          ...f,
+          termLabel: tData.label,
+          termId: tData.term
+        });
+      });
+      termTimeline.push({
+        termLabel: tData.label,
+        termId: tData.term,
+        start: startIdx,
+        end: stitchedFrames.length - 1
+      });
+    });
+
+    this.speechFrames = stitchedFrames;
+    this.speechCurrentTerms = termTimeline;
+    this.speechFrameIdx = 0;
+
+    // Start animated playback
+    this.playSpeechLoop();
+  }
+
+  playSpeechLoop() {
+    this.speechIsPlaying = true;
+    this.speechPauseBtn.textContent = 'Pause';
+    this.speechLastFrameTime = performance.now();
+
+    const loop = (now) => {
+      if (!this.speechIsPlaying) return;
+
+      const elapsed = now - this.speechLastFrameTime;
+      const targetInterval = 33.33; // 30 fps
+
+      if (elapsed >= targetInterval) {
+        this.speechLastFrameTime = now;
+
+        if (this.speechFrameIdx >= this.speechFrames.length) {
+          this.speechFrameIdx = 0; // loop back
+        }
+
+        const currentFrame = this.speechFrames[this.speechFrameIdx];
+        if (currentFrame) {
+          // Update active word badge & progress text
+          this.speechActiveWordBadge.textContent = `Signing: ${currentFrame.termLabel || 'Sign'}`;
+          this.speechProgressText.textContent = `Frame ${this.speechFrameIdx + 1} / ${this.speechFrames.length} (${currentFrame.phase || 'stroke'})`;
+
+          // Update active chip highlight
+          const activeTermIndex = this.speechCurrentTerms.findIndex(t =>
+            this.speechFrameIdx >= t.start && this.speechFrameIdx <= t.end
+          );
+          const chips = this.speechChipsContainer.querySelectorAll('.sentence-chip');
+          chips.forEach((c, idx) => {
+            c.classList.toggle('chip-active', idx === activeTermIndex);
+          });
+
+          this.renderSpeechCurrentFrame();
+        }
+
+        this.speechFrameIdx++;
+      }
+
+      this.speechRafId = requestAnimationFrame(loop);
+    };
+
+    this.speechRafId = requestAnimationFrame(loop);
+  }
+
+  pauseSpeechLoop() {
+    this.speechIsPlaying = false;
+    this.speechPauseBtn.textContent = 'Resume';
+    if (this.speechRafId) {
+      cancelAnimationFrame(this.speechRafId);
+      this.speechRafId = null;
+    }
+  }
+
+  renderSpeechCurrentFrame() {
+    if (!this.speechRenderer) return;
+    const frame = this.speechFrames[this.speechFrameIdx] || { rig_state: this.rig.defaultState };
+
+    this.speechRenderer.render({
+      rigState: frame.rig_state,
+      displayMode: 'rig', // rig only for speech view
+      showCornerViews: this.showCornerViews
+    });
   }
 }
 

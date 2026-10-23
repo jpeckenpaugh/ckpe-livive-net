@@ -20,6 +20,7 @@
     <nav class="header-nav">
       <a href="#/index" id="nav-index" class="nav-btn active">Index</a>
       <a href="#/detail" id="nav-detail" class="nav-btn">Detail</a>
+      <a href="#/speech" id="nav-speech" class="nav-btn">Speech-to-Sign</a>
       <a href="#/provenance" id="nav-provenance" class="nav-btn">Provenance</a>
       <a href="https://github.com/jpeckenpaugh/ckpe-livive-net" target="_blank" rel="noopener" class="nav-btn github-link">GitHub ↗</a>
       <a href="https://rigd.livive.net/" target="_blank" rel="noopener" class="nav-btn external-link">RigD 3D ↗</a>
@@ -180,6 +181,118 @@
           </dl>
         </div>
       </section>
+    </div>
+  </main>
+
+  <!-- VIEW 4: SPEECH-TO-SIGN -->
+  <main id="view-speech" class="spa-view" style="display: none;">
+    <div class="speech-hero">
+      <div class="hero-content">
+        <h1>Speech &amp; Text to Kinematic Sign</h1>
+        <p class="hero-sub">
+          Speak into your microphone or type with autocomplete to animate the 3D rig.
+          Supports single terms and multi-word sentence chaining across all 111 compiled ASL terms.
+        </p>
+      </div>
+    </div>
+
+    <!-- Speech & Keyboard Input Card -->
+    <div class="speech-input-card">
+      <div class="speech-controls-row">
+        <!-- Microphone Button -->
+        <button id="micBtn" class="mic-btn" title="Toggle Microphone Listening">
+          <svg class="mic-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+          </svg>
+          <span id="micLabel">Speak Sign</span>
+        </button>
+
+        <!-- Autocomplete Text Input -->
+        <div class="speech-input-wrap">
+          <input type="text" id="speechTextInput" class="speech-text-input" placeholder="Type or speak a sign (e.g. 'hello', 'water', 'father', 'thank you', 'friend')..." autocomplete="off">
+          <button id="speechClearBtn" class="clear-btn" style="display: none;">&times;</button>
+          
+          <!-- Autocomplete Dropdown List -->
+          <div id="speechAutocomplete" class="autocomplete-dropdown" style="display: none;"></div>
+        </div>
+
+        <!-- Animate / Play Button -->
+        <button id="speechPlayBtn" class="ctrl-btn play-btn speech-submit-btn">
+          ▶ Animate
+        </button>
+      </div>
+
+      <!-- Quick Suggestion Pills -->
+      <div class="speech-suggestions-row">
+        <span class="suggestions-label">Try words:</span>
+        <button class="speech-suggestion-pill" data-text="hello">Hello</button>
+        <button class="speech-suggestion-pill" data-text="thank you">Thank You</button>
+        <button class="speech-suggestion-pill" data-text="water">Water</button>
+        <button class="speech-suggestion-pill" data-text="please">Please</button>
+        <button class="speech-suggestion-pill" data-text="father">Father</button>
+        <button class="speech-suggestion-pill" data-text="mother">Mother</button>
+        <button class="speech-suggestion-pill" data-text="friend">Friend</button>
+        <button class="speech-suggestion-pill" data-text="we go right">We Go Right</button>
+        <button class="speech-suggestion-pill" data-text="hello friend please thank you">Chain: Hello Friend Please Thank You</button>
+      </div>
+
+      <!-- Live Speech / Input Status & Recognized Chips -->
+      <div id="speechStatusBanner" class="speech-status-banner">
+        <span id="speechStatusText">Type or tap the microphone to dictate a sign.</span>
+      </div>
+
+      <!-- Sentence Word Sequence Chips -->
+      <div id="speechSentenceRow" class="sentence-chips-row" style="display: none;">
+        <span class="sentence-label">Sequence:</span>
+        <div id="speechChipsContainer" class="sentence-chips-container"></div>
+      </div>
+    </div>
+
+    <!-- 3D Rig Playback Display -->
+    <div class="speech-display-workspace">
+      <!-- Left: Big Front Canvas -->
+      <div class="canvas-card speech-canvas-card">
+        <div class="canvas-header-overlay">
+          <div id="speechActiveWordBadge" class="reward-badge">Active: Ready</div>
+          <div class="canvas-header-actions">
+            <button id="speechCornerViewsBtn" class="mode-btn corner-btn" title="Toggle Side/Top/Oblique Inset Views">📐 Corner Views</button>
+          </div>
+        </div>
+        <div class="canvas-container speech-canvas-container">
+          <canvas id="speechCanvas"></canvas>
+        </div>
+        <div class="speech-playback-bar">
+          <button id="speechReplayBtn" class="ctrl-btn" title="Replay">↺ Replay</button>
+          <button id="speechPauseBtn" class="ctrl-btn" title="Pause / Resume">Pause</button>
+          <div id="speechProgressText" class="speech-progress-text">Ready to animate</div>
+          <a id="speechInspectBtn" href="#/detail" class="ctrl-btn inspect-detail-btn" style="display: none;">Inspect in Detail &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Right: Active Sign Metadata Card -->
+      <div class="speech-info-col">
+        <div class="data-card speech-info-card">
+          <div class="card-header-flex">
+            <h3 id="speechCardTitle">Current Gesture</h3>
+            <span id="speechCardBadge" class="badge badge-learned">Ready</span>
+          </div>
+          <p id="speechCardDesc" class="speech-card-desc">
+            Type or speak a sign to trigger real-time forward kinematics execution on the Level 1 skeletal rig.
+          </p>
+
+          <dl class="metadata-dl speech-metadata-dl">
+            <dt>Vocabulary Term</dt>
+            <dd id="speechMetaTerm">--</dd>
+            <dt>Phonology</dt>
+            <dd id="speechMetaPhonology">--</dd>
+            <dt>Duration &amp; Frames</dt>
+            <dd id="speechMetaFrames">--</dd>
+            <dt>Velocity Bound</dt>
+            <dd><span class="delta-ok delta-pill">&le; 12.0&deg;/frame (Zero-Bamf)</span></dd>
+          </dl>
+        </div>
+      </div>
     </div>
   </main>
 
