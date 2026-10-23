@@ -115,6 +115,20 @@ class CKPEApp {
     this.speechMetaPhonology = document.getElementById('speechMetaPhonology');
     this.speechMetaFrames = document.getElementById('speechMetaFrames');
 
+    // Speech-to-Sign Video & Overlay DOM
+    this.speechVideo = document.getElementById('speechVideo');
+    this.speechModeToggles = document.getElementById('speechModeToggles');
+    this.speechDisplayMode = 'overlay'; // 'overlay', 'rig', 'sample'
+
+    if (this.speechVideo) {
+      this.speechVideo.onloadeddata = () => {
+        if (!this.speechIsPlaying) this.renderSpeechCurrentFrame();
+      };
+      this.speechVideo.onseeked = () => {
+        if (!this.speechIsPlaying) this.renderSpeechCurrentFrame();
+      };
+    }
+
     // Speech state
     this.speechRecognition = null;
     this.isListening = false;
@@ -240,11 +254,11 @@ class CKPEApp {
       }
     });
 
-    // Overlay mode toggles
-    const modeButtons = document.querySelectorAll('.mode-btn');
-    modeButtons.forEach(btn => {
+    // Detail Overlay mode toggles
+    const detailModeButtons = document.querySelectorAll('#detailModeToggles button[data-mode]');
+    detailModeButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        modeButtons.forEach(b => b.classList.remove('active'));
+        detailModeButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         this.displayMode = btn.dataset.mode;
         this.renderCurrentFrame();
@@ -306,6 +320,7 @@ class CKPEApp {
     Object.values(this.navBtns).forEach(btn => btn.classList.remove('active'));
 
     if (hash.startsWith('#/detail')) {
+      if (this.speechIsPlaying) this.pauseSpeechLoop();
       this.switchView('detail');
       this.navBtns.detail.classList.add('active');
       const parts = hash.split('/');
@@ -323,10 +338,12 @@ class CKPEApp {
       this.navBtns.speech.classList.add('active');
     } else if (hash.startsWith('#/provenance')) {
       if (this.isPlaying) this.pause();
+      if (this.speechIsPlaying) this.pauseSpeechLoop();
       this.switchView('provenance');
       this.navBtns.provenance.classList.add('active');
     } else {
       if (this.isPlaying) this.pause();
+      if (this.speechIsPlaying) this.pauseSpeechLoop();
       this.switchView('index');
       this.navBtns.index.classList.add('active');
     }
@@ -561,7 +578,7 @@ class CKPEApp {
 
     // Sync video timestamp if present
     if (this.detailVideo && this.currentTermData.source === 'learned' && frame.timestamp_s !== undefined) {
-      if (Math.abs(this.detailVideo.currentTime - frame.timestamp_s) > 0.05) {
+      if (Math.abs(this.detailVideo.currentTime - frame.timestamp_s) > 0.01) {
         this.detailVideo.currentTime = frame.timestamp_s;
       }
     }
@@ -992,11 +1009,34 @@ class CKPEApp {
       });
     }
 
+    // Speech Overlay mode toggles (Rig Only, 50% Overlay, Sample Only)
+    if (this.speechModeToggles) {
+      const speechModeButtons = this.speechModeToggles.querySelectorAll('button[data-mode]');
+      speechModeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          speechModeButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.speechDisplayMode = btn.dataset.mode;
+          this.renderSpeechCurrentFrame();
+        });
+      });
+    }
+
     // Playback control buttons
     if (this.speechReplayBtn) {
       this.speechReplayBtn.addEventListener('click', () => {
         if (this.speechFrames.length > 0) {
           this.speechFrameIdx = 0;
+          const firstLearned = this.speechFrames.find(f => f.source === 'learned' && f.video);
+          if (this.speechVideo && firstLearned) {
+            if (!this.speechVideo.src.endsWith(firstLearned.video)) {
+              this.speechVideo.src = firstLearned.video;
+              this.speechVideo.load();
+            }
+            if (firstLearned.timestamp_s !== undefined) {
+              this.speechVideo.currentTime = firstLearned.timestamp_s;
+            }
+          }
           this.playSpeechLoop();
         }
       });
@@ -1352,12 +1392,18 @@ class CKPEApp {
         stitchedFrames.push({
           ...f,
           termLabel: tData.label,
-          termId: tData.term
+          termId: tData.term,
+          source: tData.source,
+          video: tData.video,
+          calibration: tData.calibration
         });
       });
       termTimeline.push({
         termLabel: tData.label,
         termId: tData.term,
+        source: tData.source,
+        video: tData.video,
+        calibration: tData.calibration,
         start: startIdx,
         end: stitchedFrames.length - 1
       });
@@ -1367,11 +1413,31 @@ class CKPEApp {
     this.speechCurrentTerms = termTimeline;
     this.speechFrameIdx = 0;
 
+    // Immediately load video if the first sign has one
+    const firstLearned = stitchedFrames.find(f => f.source === 'learned' && f.video);
+    if (this.speechVideo) {
+      if (firstLearned) {
+        if (!this.speechVideo.src.endsWith(firstLearned.video)) {
+          this.speechVideo.src = firstLearned.video;
+          this.speechVideo.load();
+        }
+        if (firstLearned.timestamp_s !== undefined) {
+          this.speechVideo.currentTime = firstLearned.timestamp_s;
+        }
+      } else {
+        this.speechVideo.removeAttribute('src');
+      }
+    }
+
     // Start animated playback
     this.playSpeechLoop();
   }
 
   playSpeechLoop() {
+    if (this.speechRafId) {
+      cancelAnimationFrame(this.speechRafId);
+      this.speechRafId = null;
+    }
     this.speechIsPlaying = true;
     this.speechPauseBtn.textContent = 'Pause';
     this.speechLastFrameTime = performance.now();
@@ -1391,6 +1457,19 @@ class CKPEApp {
 
         const currentFrame = this.speechFrames[this.speechFrameIdx];
         if (currentFrame) {
+          // Sync video for the current frame
+          if (this.speechVideo && currentFrame.source === 'learned' && currentFrame.video) {
+            if (!this.speechVideo.src.endsWith(currentFrame.video)) {
+              this.speechVideo.src = currentFrame.video;
+              this.speechVideo.load();
+            }
+            if (currentFrame.timestamp_s !== undefined) {
+              if (Math.abs(this.speechVideo.currentTime - currentFrame.timestamp_s) > 0.01) {
+                this.speechVideo.currentTime = currentFrame.timestamp_s;
+              }
+            }
+          }
+
           // Update active word badge & progress text
           this.speechActiveWordBadge.textContent = `Signing: ${currentFrame.termLabel || 'Sign'}`;
           this.speechProgressText.textContent = `Frame ${this.speechFrameIdx + 1} / ${this.speechFrames.length} (${currentFrame.phase || 'stroke'})`;
@@ -1429,9 +1508,17 @@ class CKPEApp {
     if (!this.speechRenderer) return;
     const frame = this.speechFrames[this.speechFrameIdx] || { rig_state: this.rig.defaultState };
 
+    const underlaySource = (frame.source === 'learned' && this.speechVideo && this.speechVideo.readyState >= 1)
+      ? this.speechVideo
+      : null;
+
     this.speechRenderer.render({
       rigState: frame.rig_state,
-      displayMode: 'rig', // rig only for speech view
+      displayMode: this.speechDisplayMode,
+      underlay: underlaySource,
+      calib: frame.calibration,
+      rightHandTip: frame.rightHandTip,
+      overlayAlpha: 0.50,
       showCornerViews: this.showCornerViews
     });
   }

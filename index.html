@@ -27,8 +27,9 @@
     </nav>
   </header>
 
-  <!-- Hidden Video Element for Video Decoding/Sync -->
+  <!-- Hidden Video Elements for Video Decoding/Sync -->
   <video id="detailVideo" class="hidden-media" playsinline muted preload="auto"></video>
+  <video id="speechVideo" class="hidden-media" playsinline muted preload="auto"></video>
 
   <!-- VIEW 1: INDEX -->
   <main id="view-index" class="spa-view">
@@ -88,7 +89,7 @@
             <div id="rewardBadge" class="reward-badge">Reward: --</div>
             <div class="canvas-header-actions">
               <button id="toggleCornerViewsBtn" class="mode-btn corner-btn" title="Toggle Side/Top/Oblique Corner Views">📐 Corner Views</button>
-              <div class="overlay-mode-toggles">
+              <div class="overlay-mode-toggles" id="detailModeToggles">
                 <button class="mode-btn" data-mode="rig">Rig Only</button>
                 <button class="mode-btn active" data-mode="overlay">50% Overlay</button>
                 <button class="mode-btn" data-mode="sample">Sample Only</button>
@@ -257,6 +258,11 @@
           <div id="speechActiveWordBadge" class="reward-badge">Active: Ready</div>
           <div class="canvas-header-actions">
             <button id="speechCornerViewsBtn" class="mode-btn corner-btn" title="Toggle Side/Top/Oblique Inset Views">📐 Corner Views</button>
+            <div class="overlay-mode-toggles" id="speechModeToggles">
+              <button class="mode-btn" data-mode="rig">Rig Only</button>
+              <button class="mode-btn active" data-mode="overlay">50% Overlay</button>
+              <button class="mode-btn" data-mode="sample">Sample Only</button>
+            </div>
           </div>
         </div>
         <div class="canvas-container speech-canvas-container">
