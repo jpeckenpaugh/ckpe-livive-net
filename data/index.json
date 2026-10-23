@@ -1,0 +1,1746 @@
+[
+  {
+    "term": "again",
+    "label": "Again",
+    "source": "learned",
+    "sign_type": "AsymmetricalSameHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "HandAway"
+    },
+    "movement": "Curved",
+    "handshape": "flat_b",
+    "mean_reward": 0.6137,
+    "frame_count": 48,
+    "duration_ms": 1568,
+    "thumbnail": "data/thumbs/again.jpg"
+  },
+  {
+    "term": "agree",
+    "label": "Agree",
+    "source": "authored",
+    "sign_type": "AuthoredGesture",
+    "location": {
+      "major": "Head",
+      "minor": "Space"
+    },
+    "movement": "Kinematic Specification",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 30,
+    "duration_ms": 1000,
+    "thumbnail": null
+  },
+  {
+    "term": "airplane",
+    "label": "Airplane",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "ily",
+    "mean_reward": 0.6715,
+    "frame_count": 68,
+    "duration_ms": 1869,
+    "thumbnail": "data/thumbs/airplane.jpg"
+  },
+  {
+    "term": "angry",
+    "label": "Angry",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Body",
+      "minor": "TorsoTop"
+    },
+    "movement": "Curved",
+    "handshape": "5",
+    "mean_reward": 0.6929,
+    "frame_count": 41,
+    "duration_ms": 1368,
+    "thumbnail": "data/thumbs/angry.jpg"
+  },
+  {
+    "term": "apple",
+    "label": "Apple",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "CheekNose"
+    },
+    "movement": "None",
+    "handshape": "bent_1",
+    "mean_reward": 0.8019,
+    "frame_count": 34,
+    "duration_ms": 1134,
+    "thumbnail": "data/thumbs/apple.jpg"
+  },
+  {
+    "term": "baby",
+    "label": "Baby",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "open_b",
+    "mean_reward": 0.4954,
+    "frame_count": 58,
+    "duration_ms": 1935,
+    "thumbnail": "data/thumbs/baby.jpg"
+  },
+  {
+    "term": "bacon",
+    "label": "Bacon",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "flat_h",
+    "mean_reward": 0.6806,
+    "frame_count": 57,
+    "duration_ms": 3136,
+    "thumbnail": "data/thumbs/bacon.jpg"
+  },
+  {
+    "term": "bear",
+    "label": "Bear",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Body",
+      "minor": "TorsoTop"
+    },
+    "movement": "Straight",
+    "handshape": "5",
+    "mean_reward": 0.6843,
+    "frame_count": 78,
+    "duration_ms": 2603,
+    "thumbnail": "data/thumbs/bear.jpg"
+  },
+  {
+    "term": "bed",
+    "label": "Bed",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Other"
+    },
+    "movement": "Straight",
+    "handshape": "open_b",
+    "mean_reward": 0.6764,
+    "frame_count": 27,
+    "duration_ms": 901,
+    "thumbnail": "data/thumbs/bed.jpg"
+  },
+  {
+    "term": "bird",
+    "label": "Bird",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Mouth"
+    },
+    "movement": "None",
+    "handshape": "g",
+    "mean_reward": 0.7905,
+    "frame_count": 35,
+    "duration_ms": 1168,
+    "thumbnail": "data/thumbs/bird.jpg"
+  },
+  {
+    "term": "boat",
+    "label": "Boat",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Curved",
+    "handshape": "open_b",
+    "mean_reward": 0.7195,
+    "frame_count": 78,
+    "duration_ms": 2603,
+    "thumbnail": "data/thumbs/boat.jpg"
+  },
+  {
+    "term": "book",
+    "label": "Book",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Curved",
+    "handshape": "open_b",
+    "mean_reward": 0.7421,
+    "frame_count": 38,
+    "duration_ms": 1268,
+    "thumbnail": "data/thumbs/book.jpg"
+  },
+  {
+    "term": "boss",
+    "label": "Boss",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Body",
+      "minor": "Shoulder"
+    },
+    "movement": "Straight",
+    "handshape": "curved_5",
+    "mean_reward": 0.6004,
+    "frame_count": 42,
+    "duration_ms": 1401,
+    "thumbnail": "data/thumbs/boss.jpg"
+  },
+  {
+    "term": "box",
+    "label": "Box",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "None",
+    "handshape": "open_b",
+    "mean_reward": 0.6792,
+    "frame_count": 62,
+    "duration_ms": 2069,
+    "thumbnail": "data/thumbs/box.jpg"
+  },
+  {
+    "term": "boy",
+    "label": "Boy",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Forehead"
+    },
+    "movement": "None",
+    "handshape": "flat_o",
+    "mean_reward": 0.6235,
+    "frame_count": 43,
+    "duration_ms": 1435,
+    "thumbnail": "data/thumbs/boy.jpg"
+  },
+  {
+    "term": "bread",
+    "label": "Bread",
+    "source": "learned",
+    "sign_type": "AsymmetricalDifferentHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "PalmBack"
+    },
+    "movement": "Straight",
+    "handshape": "open_e",
+    "mean_reward": 0.7264,
+    "frame_count": 40,
+    "duration_ms": 1335,
+    "thumbnail": "data/thumbs/bread.jpg"
+  },
+  {
+    "term": "butter",
+    "label": "Butter",
+    "source": "learned",
+    "sign_type": "AsymmetricalDifferentHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "Palm"
+    },
+    "movement": "Straight",
+    "handshape": "flat_h",
+    "mean_reward": 0.7285,
+    "frame_count": 32,
+    "duration_ms": 1068,
+    "thumbnail": "data/thumbs/butter.jpg"
+  },
+  {
+    "term": "candy_1",
+    "label": "Candy 1",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "CheekNose"
+    },
+    "movement": "None",
+    "handshape": "1",
+    "mean_reward": 0.5337,
+    "frame_count": 50,
+    "duration_ms": 1668,
+    "thumbnail": "data/thumbs/candy_1.jpg"
+  },
+  {
+    "term": "car",
+    "label": "Car",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Curved",
+    "handshape": "s",
+    "mean_reward": 0.6857,
+    "frame_count": 77,
+    "duration_ms": 2569,
+    "thumbnail": "data/thumbs/car.jpg"
+  },
+  {
+    "term": "cat",
+    "label": "Cat",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "CheekNose"
+    },
+    "movement": "Straight",
+    "handshape": "f",
+    "mean_reward": 0.7535,
+    "frame_count": 35,
+    "duration_ms": 1168,
+    "thumbnail": "data/thumbs/cat.jpg"
+  },
+  {
+    "term": "chair",
+    "label": "Chair",
+    "source": "learned",
+    "sign_type": "DominanceViolation",
+    "location": {
+      "major": "Hand",
+      "minor": "FingerBack"
+    },
+    "movement": "Straight",
+    "handshape": "h",
+    "mean_reward": 0.7125,
+    "frame_count": 30,
+    "duration_ms": 1001,
+    "thumbnail": "data/thumbs/chair.jpg"
+  },
+  {
+    "term": "cheese",
+    "label": "Cheese",
+    "source": "learned",
+    "sign_type": "AsymmetricalSameHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "Heel"
+    },
+    "movement": "None",
+    "handshape": "5",
+    "mean_reward": 0.6587,
+    "frame_count": 35,
+    "duration_ms": 1168,
+    "thumbnail": "data/thumbs/cheese.jpg"
+  },
+  {
+    "term": "clock",
+    "label": "Clock",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Arm",
+      "minor": "WristBack"
+    },
+    "movement": "Straight",
+    "handshape": "1",
+    "mean_reward": 0.6419,
+    "frame_count": 80,
+    "duration_ms": 2669,
+    "thumbnail": "data/thumbs/clock.jpg"
+  },
+  {
+    "term": "coffee",
+    "label": "Coffee",
+    "source": "learned",
+    "sign_type": "AsymmetricalSameHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "FingerRadial"
+    },
+    "movement": "Circular",
+    "handshape": "s",
+    "mean_reward": 0.7499,
+    "frame_count": 43,
+    "duration_ms": 1435,
+    "thumbnail": "data/thumbs/coffee.jpg"
+  },
+  {
+    "term": "computer",
+    "label": "Computer",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Circular",
+    "handshape": "open_8",
+    "mean_reward": 0.7474,
+    "frame_count": 41,
+    "duration_ms": 1368,
+    "thumbnail": "data/thumbs/computer.jpg"
+  },
+  {
+    "term": "corn_2",
+    "label": "Corn 2",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Head",
+      "minor": "HeadAway"
+    },
+    "movement": "None",
+    "handshape": "curved_5",
+    "mean_reward": 0.6674,
+    "frame_count": 62,
+    "duration_ms": 2069,
+    "thumbnail": "data/thumbs/corn_2.jpg"
+  },
+  {
+    "term": "disagree",
+    "label": "Disagree",
+    "source": "authored",
+    "sign_type": "AuthoredGesture",
+    "location": {
+      "major": "Head",
+      "minor": "Space"
+    },
+    "movement": "Kinematic Specification",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 30,
+    "duration_ms": 1000,
+    "thumbnail": null
+  },
+  {
+    "term": "doctor",
+    "label": "Doctor",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Arm",
+      "minor": "WristFront"
+    },
+    "movement": "Straight",
+    "handshape": "flat_o",
+    "mean_reward": 0.696,
+    "frame_count": 34,
+    "duration_ms": 1134,
+    "thumbnail": "data/thumbs/doctor.jpg"
+  },
+  {
+    "term": "dog",
+    "label": "Dog",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "None",
+    "handshape": "d",
+    "mean_reward": 0.8124,
+    "frame_count": 35,
+    "duration_ms": 1168,
+    "thumbnail": "data/thumbs/dog.jpg"
+  },
+  {
+    "term": "door",
+    "label": "Door",
+    "source": "learned",
+    "sign_type": "AsymmetricalSameHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "FingerRadial"
+    },
+    "movement": "Curved",
+    "handshape": "closed_b",
+    "mean_reward": 0.7615,
+    "frame_count": 36,
+    "duration_ms": 1201,
+    "thumbnail": "data/thumbs/door.jpg"
+  },
+  {
+    "term": "drink",
+    "label": "Drink",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "HeadAway"
+    },
+    "movement": "Straight",
+    "handshape": "c",
+    "mean_reward": 0.6388,
+    "frame_count": 42,
+    "duration_ms": 1401,
+    "thumbnail": "data/thumbs/drink.jpg"
+  },
+  {
+    "term": "eat_1",
+    "label": "Eat 1",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Mouth"
+    },
+    "movement": "Straight",
+    "handshape": "o",
+    "mean_reward": 0.6644,
+    "frame_count": 45,
+    "duration_ms": 1502,
+    "thumbnail": "data/thumbs/eat_1.jpg"
+  },
+  {
+    "term": "egg",
+    "label": "Egg",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Curved",
+    "handshape": "h",
+    "mean_reward": 0.7603,
+    "frame_count": 37,
+    "duration_ms": 1235,
+    "thumbnail": "data/thumbs/egg.jpg"
+  },
+  {
+    "term": "excited",
+    "label": "Excited",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Body",
+      "minor": "TorsoTop"
+    },
+    "movement": "Curved",
+    "handshape": "open_8",
+    "mean_reward": 0.681,
+    "frame_count": 49,
+    "duration_ms": 1602,
+    "thumbnail": "data/thumbs/excited.jpg"
+  },
+  {
+    "term": "family",
+    "label": "Family",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Curved",
+    "handshape": "f",
+    "mean_reward": 0.6587,
+    "frame_count": 58,
+    "duration_ms": 1935,
+    "thumbnail": "data/thumbs/family.jpg"
+  },
+  {
+    "term": "father",
+    "label": "Father",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Forehead"
+    },
+    "movement": "Straight",
+    "handshape": "5",
+    "mean_reward": 0.6746,
+    "frame_count": 44,
+    "duration_ms": 1468,
+    "thumbnail": "data/thumbs/father.jpg"
+  },
+  {
+    "term": "find",
+    "label": "Find",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "f",
+    "mean_reward": 0.5257,
+    "frame_count": 51,
+    "duration_ms": 1702,
+    "thumbnail": "data/thumbs/find.jpg"
+  },
+  {
+    "term": "fine_1",
+    "label": "Fine 1",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Body",
+      "minor": "TorsoTop"
+    },
+    "movement": "Straight",
+    "handshape": "5",
+    "mean_reward": 0.575,
+    "frame_count": 42,
+    "duration_ms": 1401,
+    "thumbnail": "data/thumbs/fine_1.jpg"
+  },
+  {
+    "term": "finish",
+    "label": "Finish",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "None",
+    "handshape": "5",
+    "mean_reward": 0.6126,
+    "frame_count": 51,
+    "duration_ms": 1702,
+    "thumbnail": "data/thumbs/finish.jpg"
+  },
+  {
+    "term": "fire",
+    "label": "Fire",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Circular",
+    "handshape": "5",
+    "mean_reward": 0.6849,
+    "frame_count": 54,
+    "duration_ms": 1802,
+    "thumbnail": "data/thumbs/fire.jpg"
+  },
+  {
+    "term": "fish",
+    "label": "Fish",
+    "source": "learned",
+    "sign_type": "AsymmetricalSameHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "FingerTip"
+    },
+    "movement": "None",
+    "handshape": "open_b",
+    "mean_reward": 0.6964,
+    "frame_count": 37,
+    "duration_ms": 1235,
+    "thumbnail": "data/thumbs/fish.jpg"
+  },
+  {
+    "term": "flower",
+    "label": "Flower",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "CheekNose"
+    },
+    "movement": "Curved",
+    "handshape": "flat_o",
+    "mean_reward": 0.6365,
+    "frame_count": 36,
+    "duration_ms": 1201,
+    "thumbnail": "data/thumbs/flower.jpg"
+  },
+  {
+    "term": "friend",
+    "label": "Friend",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Other",
+    "handshape": "curved_1",
+    "mean_reward": 0.7841,
+    "frame_count": 62,
+    "duration_ms": 2069,
+    "thumbnail": "data/thumbs/friend.jpg"
+  },
+  {
+    "term": "fruit",
+    "label": "Fruit",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Mouth"
+    },
+    "movement": "None",
+    "handshape": "f",
+    "mean_reward": 0.6751,
+    "frame_count": 52,
+    "duration_ms": 1735,
+    "thumbnail": "data/thumbs/fruit.jpg"
+  },
+  {
+    "term": "girl",
+    "label": "Girl",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "CheekNose"
+    },
+    "movement": "Curved",
+    "handshape": "a",
+    "mean_reward": 0.6668,
+    "frame_count": 49,
+    "duration_ms": 1635,
+    "thumbnail": "data/thumbs/girl.jpg"
+  },
+  {
+    "term": "give",
+    "label": "Give",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Curved",
+    "handshape": "flat_o",
+    "mean_reward": 0.621,
+    "frame_count": 51,
+    "duration_ms": 1668,
+    "thumbnail": "data/thumbs/give.jpg"
+  },
+  {
+    "term": "hands-up",
+    "label": "Hands Up",
+    "source": "authored",
+    "sign_type": "AuthoredGesture",
+    "location": {
+      "major": "Head",
+      "minor": "Space"
+    },
+    "movement": "Kinematic Specification",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 30,
+    "duration_ms": 1000,
+    "thumbnail": null
+  },
+  {
+    "term": "hats-off",
+    "label": "Hats Off",
+    "source": "authored",
+    "sign_type": "AuthoredGesture",
+    "location": {
+      "major": "Head",
+      "minor": "Space"
+    },
+    "movement": "Kinematic Specification",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 30,
+    "duration_ms": 1500,
+    "thumbnail": null
+  },
+  {
+    "term": "hello",
+    "label": "Hello",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Forehead"
+    },
+    "movement": "Straight",
+    "handshape": "closed_b",
+    "mean_reward": 0.8053,
+    "frame_count": 53,
+    "duration_ms": 1768,
+    "thumbnail": "data/thumbs/hello.jpg"
+  },
+  {
+    "term": "help",
+    "label": "Help",
+    "source": "learned",
+    "sign_type": "AsymmetricalDifferentHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "Palm"
+    },
+    "movement": "Straight",
+    "handshape": "a",
+    "mean_reward": 0.7857,
+    "frame_count": 54,
+    "duration_ms": 1802,
+    "thumbnail": "data/thumbs/help.jpg"
+  },
+  {
+    "term": "house",
+    "label": "House",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Curved",
+    "handshape": "flat_b",
+    "mean_reward": 0.8184,
+    "frame_count": 56,
+    "duration_ms": 1869,
+    "thumbnail": "data/thumbs/house.jpg"
+  },
+  {
+    "term": "how",
+    "label": "How",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Curved",
+    "handshape": "c",
+    "mean_reward": 0.7426,
+    "frame_count": 53,
+    "duration_ms": 1768,
+    "thumbnail": "data/thumbs/how.jpg"
+  },
+  {
+    "term": "key",
+    "label": "Key",
+    "source": "learned",
+    "sign_type": "AsymmetricalDifferentHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "Heel"
+    },
+    "movement": "None",
+    "handshape": "baby_o",
+    "mean_reward": 0.6878,
+    "frame_count": 49,
+    "duration_ms": 1635,
+    "thumbnail": "data/thumbs/key.jpg"
+  },
+  {
+    "term": "know",
+    "label": "Know",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Forehead"
+    },
+    "movement": "Straight",
+    "handshape": "open_b",
+    "mean_reward": 0.6746,
+    "frame_count": 46,
+    "duration_ms": 1535,
+    "thumbnail": "data/thumbs/know.jpg"
+  },
+  {
+    "term": "like",
+    "label": "Like",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Body",
+      "minor": "TorsoTop"
+    },
+    "movement": "Straight",
+    "handshape": "8",
+    "mean_reward": 0.5478,
+    "frame_count": 54,
+    "duration_ms": 1768,
+    "thumbnail": "data/thumbs/like.jpg"
+  },
+  {
+    "term": "man",
+    "label": "Man",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Forehead"
+    },
+    "movement": "None",
+    "handshape": "5",
+    "mean_reward": 0.6529,
+    "frame_count": 47,
+    "duration_ms": 1568,
+    "thumbnail": "data/thumbs/man.jpg"
+  },
+  {
+    "term": "meet",
+    "label": "Meet",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "1",
+    "mean_reward": 0.7786,
+    "frame_count": 60,
+    "duration_ms": 2002,
+    "thumbnail": "data/thumbs/meet.jpg"
+  },
+  {
+    "term": "milk",
+    "label": "Milk",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "None",
+    "handshape": "s",
+    "mean_reward": 0.8133,
+    "frame_count": 31,
+    "duration_ms": 1034,
+    "thumbnail": "data/thumbs/milk.jpg"
+  },
+  {
+    "term": "money",
+    "label": "Money",
+    "source": "learned",
+    "sign_type": "AsymmetricalDifferentHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "Palm"
+    },
+    "movement": "Straight",
+    "handshape": "flat_o",
+    "mean_reward": 0.5945,
+    "frame_count": 45,
+    "duration_ms": 1502,
+    "thumbnail": "data/thumbs/money.jpg"
+  },
+  {
+    "term": "moon",
+    "label": "Moon",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Eye"
+    },
+    "movement": "Curved",
+    "handshape": "curved_l",
+    "mean_reward": 0.5315,
+    "frame_count": 44,
+    "duration_ms": 1468,
+    "thumbnail": "data/thumbs/moon.jpg"
+  },
+  {
+    "term": "more",
+    "label": "More",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "o",
+    "mean_reward": 0.6625,
+    "frame_count": 48,
+    "duration_ms": 1602,
+    "thumbnail": "data/thumbs/more.jpg"
+  },
+  {
+    "term": "mother",
+    "label": "Mother",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Chin"
+    },
+    "movement": "Straight",
+    "handshape": "5",
+    "mean_reward": 0.6814,
+    "frame_count": 45,
+    "duration_ms": 1502,
+    "thumbnail": "data/thumbs/mother.jpg"
+  },
+  {
+    "term": "my",
+    "label": "My",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Body",
+      "minor": "TorsoTop"
+    },
+    "movement": "Straight",
+    "handshape": "open_b",
+    "mean_reward": 0.645,
+    "frame_count": 41,
+    "duration_ms": 1368,
+    "thumbnail": "data/thumbs/my.jpg"
+  },
+  {
+    "term": "name",
+    "label": "Name",
+    "source": "learned",
+    "sign_type": "DominanceViolation",
+    "location": {
+      "major": "Hand",
+      "minor": "FingerRadial"
+    },
+    "movement": "Straight",
+    "handshape": "h",
+    "mean_reward": 0.72,
+    "frame_count": 56,
+    "duration_ms": 1869,
+    "thumbnail": "data/thumbs/name.jpg"
+  },
+  {
+    "term": "no",
+    "label": "No",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "None",
+    "handshape": "flat_h",
+    "mean_reward": 0.6807,
+    "frame_count": 49,
+    "duration_ms": 1635,
+    "thumbnail": "data/thumbs/no.jpg"
+  },
+  {
+    "term": "now",
+    "label": "Now",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "y",
+    "mean_reward": 0.5545,
+    "frame_count": 60,
+    "duration_ms": 2002,
+    "thumbnail": "data/thumbs/now.jpg"
+  },
+  {
+    "term": "one",
+    "label": "One",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "1",
+    "mean_reward": 0.5526,
+    "frame_count": 51,
+    "duration_ms": 1668,
+    "thumbnail": "data/thumbs/one.jpg"
+  },
+  {
+    "term": "open",
+    "label": "Open",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Curved",
+    "handshape": "closed_b",
+    "mean_reward": 0.607,
+    "frame_count": 58,
+    "duration_ms": 701,
+    "thumbnail": "data/thumbs/open.jpg"
+  },
+  {
+    "term": "orange",
+    "label": "Orange",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Mouth"
+    },
+    "movement": "None",
+    "handshape": "o",
+    "mean_reward": 0.7155,
+    "frame_count": 33,
+    "duration_ms": 1101,
+    "thumbnail": "data/thumbs/orange.jpg"
+  },
+  {
+    "term": "plant",
+    "label": "Plant",
+    "source": "learned",
+    "sign_type": "AsymmetricalDifferentHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "Other"
+    },
+    "movement": "Curved",
+    "handshape": "o",
+    "mean_reward": 0.7296,
+    "frame_count": 70,
+    "duration_ms": 2302,
+    "thumbnail": "data/thumbs/plant.jpg"
+  },
+  {
+    "term": "please",
+    "label": "Please",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Body",
+      "minor": "TorsoTop"
+    },
+    "movement": "Circular",
+    "handshape": "open_b",
+    "mean_reward": 0.6724,
+    "frame_count": 59,
+    "duration_ms": 1969,
+    "thumbnail": "data/thumbs/please.jpg"
+  },
+  {
+    "term": "point-it",
+    "label": "Point It",
+    "source": "authored",
+    "sign_type": "AuthoredGesture",
+    "location": {
+      "major": "Neutral",
+      "minor": "Space"
+    },
+    "movement": "Kinematic Specification",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 30,
+    "duration_ms": 1000,
+    "thumbnail": null
+  },
+  {
+    "term": "point-left",
+    "label": "Point Left",
+    "source": "authored",
+    "sign_type": "AuthoredGesture",
+    "location": {
+      "major": "Neutral",
+      "minor": "Space"
+    },
+    "movement": "Kinematic Specification",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 30,
+    "duration_ms": 1000,
+    "thumbnail": null
+  },
+  {
+    "term": "point-me",
+    "label": "Point Me",
+    "source": "authored",
+    "sign_type": "AuthoredGesture",
+    "location": {
+      "major": "Neutral",
+      "minor": "Space"
+    },
+    "movement": "Kinematic Specification",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 30,
+    "duration_ms": 1000,
+    "thumbnail": null
+  },
+  {
+    "term": "point-right",
+    "label": "Point Right",
+    "source": "authored",
+    "sign_type": "AuthoredGesture",
+    "location": {
+      "major": "Neutral",
+      "minor": "Space"
+    },
+    "movement": "Kinematic Specification",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 30,
+    "duration_ms": 1000,
+    "thumbnail": null
+  },
+  {
+    "term": "point-you",
+    "label": "Point You",
+    "source": "authored",
+    "sign_type": "AuthoredGesture",
+    "location": {
+      "major": "Neutral",
+      "minor": "Space"
+    },
+    "movement": "Kinematic Specification",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 30,
+    "duration_ms": 1000,
+    "thumbnail": null
+  },
+  {
+    "term": "pull",
+    "label": "Pull",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "baby_o",
+    "mean_reward": 0.6131,
+    "frame_count": 62,
+    "duration_ms": 1768,
+    "thumbnail": "data/thumbs/pull.jpg"
+  },
+  {
+    "term": "push",
+    "label": "Push",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "5",
+    "mean_reward": 0.8081,
+    "frame_count": 52,
+    "duration_ms": 1735,
+    "thumbnail": "data/thumbs/push.jpg"
+  },
+  {
+    "term": "rain",
+    "label": "Rain",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "spread_open_e",
+    "mean_reward": 0.4157,
+    "frame_count": 45,
+    "duration_ms": 1502,
+    "thumbnail": "data/thumbs/rain.jpg"
+  },
+  {
+    "term": "remember",
+    "label": "Remember",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Forehead"
+    },
+    "movement": "None",
+    "handshape": "a",
+    "mean_reward": 0.5958,
+    "frame_count": 78,
+    "duration_ms": 2603,
+    "thumbnail": "data/thumbs/remember.jpg"
+  },
+  {
+    "term": "sad",
+    "label": "Sad",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Head",
+      "minor": "HeadAway"
+    },
+    "movement": "Straight",
+    "handshape": "5",
+    "mean_reward": 0.6503,
+    "frame_count": 49,
+    "duration_ms": 1635,
+    "thumbnail": "data/thumbs/sad.jpg"
+  },
+  {
+    "term": "see",
+    "label": "See",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Eye"
+    },
+    "movement": "Straight",
+    "handshape": "p",
+    "mean_reward": 0.6938,
+    "frame_count": 57,
+    "duration_ms": 1802,
+    "thumbnail": "data/thumbs/see.jpg"
+  },
+  {
+    "term": "shirt",
+    "label": "Shirt",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Body",
+      "minor": "TorsoTop"
+    },
+    "movement": "Straight",
+    "handshape": "f",
+    "mean_reward": 0.5657,
+    "frame_count": 54,
+    "duration_ms": 1802,
+    "thumbnail": "data/thumbs/shirt.jpg"
+  },
+  {
+    "term": "sing",
+    "label": "Sing",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Arm",
+      "minor": "ArmAway"
+    },
+    "movement": "Curved",
+    "handshape": "open_b",
+    "mean_reward": 0.6347,
+    "frame_count": 74,
+    "duration_ms": 2469,
+    "thumbnail": "data/thumbs/sing.jpg"
+  },
+  {
+    "term": "sleep",
+    "label": "Sleep",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "HeadAway"
+    },
+    "movement": "Straight",
+    "handshape": "5",
+    "mean_reward": 0.632,
+    "frame_count": 59,
+    "duration_ms": 1969,
+    "thumbnail": "data/thumbs/sleep.jpg"
+  },
+  {
+    "term": "sorry",
+    "label": "Sorry",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Body",
+      "minor": "TorsoTop"
+    },
+    "movement": "Circular",
+    "handshape": "a",
+    "mean_reward": 0.689,
+    "frame_count": 58,
+    "duration_ms": 1902,
+    "thumbnail": "data/thumbs/sorry.jpg"
+  },
+  {
+    "term": "stand_1",
+    "label": "Stand 1",
+    "source": "learned",
+    "sign_type": "AsymmetricalDifferentHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "Palm"
+    },
+    "movement": "Straight",
+    "handshape": "v",
+    "mean_reward": 0.5989,
+    "frame_count": 54,
+    "duration_ms": 1768,
+    "thumbnail": "data/thumbs/stand_1.jpg"
+  },
+  {
+    "term": "star",
+    "label": "Star",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "1",
+    "mean_reward": 0.5708,
+    "frame_count": 65,
+    "duration_ms": 1301,
+    "thumbnail": "data/thumbs/star.jpg"
+  },
+  {
+    "term": "stop",
+    "label": "Stop",
+    "source": "learned",
+    "sign_type": "AsymmetricalSameHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "Palm"
+    },
+    "movement": "BackAndForth",
+    "handshape": "open_b",
+    "mean_reward": 0.6524,
+    "frame_count": 54,
+    "duration_ms": 1802,
+    "thumbnail": "data/thumbs/stop.jpg"
+  },
+  {
+    "term": "sun",
+    "label": "Sun",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "HeadAway"
+    },
+    "movement": "Circular",
+    "handshape": "flat_o",
+    "mean_reward": 0.5784,
+    "frame_count": 58,
+    "duration_ms": 1902,
+    "thumbnail": "data/thumbs/sun.jpg"
+  },
+  {
+    "term": "tea",
+    "label": "Tea",
+    "source": "learned",
+    "sign_type": "AsymmetricalDifferentHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "FingerRadial"
+    },
+    "movement": "Circular",
+    "handshape": "f",
+    "mean_reward": 0.5786,
+    "frame_count": 36,
+    "duration_ms": 1201,
+    "thumbnail": "data/thumbs/tea.jpg"
+  },
+  {
+    "term": "thank_you",
+    "label": "Thank You",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Mouth"
+    },
+    "movement": "Curved",
+    "handshape": "open_b",
+    "mean_reward": 0.7153,
+    "frame_count": 51,
+    "duration_ms": 1668,
+    "thumbnail": "data/thumbs/thank_you.jpg"
+  },
+  {
+    "term": "think",
+    "label": "Think",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Forehead"
+    },
+    "movement": "Straight",
+    "handshape": "flat_1",
+    "mean_reward": 0.6188,
+    "frame_count": 68,
+    "duration_ms": 2236,
+    "thumbnail": "data/thumbs/think.jpg"
+  },
+  {
+    "term": "tired",
+    "label": "Tired",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Body",
+      "minor": "Clavicle"
+    },
+    "movement": "Curved",
+    "handshape": "c",
+    "mean_reward": 0.6621,
+    "frame_count": 72,
+    "duration_ms": 2402,
+    "thumbnail": "data/thumbs/tired.jpg"
+  },
+  {
+    "term": "tree",
+    "label": "Tree",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "None",
+    "handshape": "5",
+    "mean_reward": 0.4095,
+    "frame_count": 31,
+    "duration_ms": 1034,
+    "thumbnail": "data/thumbs/tree.jpg"
+  },
+  {
+    "term": "turtle",
+    "label": "Turtle",
+    "source": "learned",
+    "sign_type": "AsymmetricalDifferentHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "Palm"
+    },
+    "movement": "None",
+    "handshape": "a",
+    "mean_reward": 0.7414,
+    "frame_count": 36,
+    "duration_ms": 1134,
+    "thumbnail": "data/thumbs/turtle.jpg"
+  },
+  {
+    "term": "two",
+    "label": "Two",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "v",
+    "mean_reward": 0.7207,
+    "frame_count": 44,
+    "duration_ms": 1435,
+    "thumbnail": "data/thumbs/two.jpg"
+  },
+  {
+    "term": "understand",
+    "label": "Understand",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "HeadAway"
+    },
+    "movement": "None",
+    "handshape": "baby_o",
+    "mean_reward": 0.6708,
+    "frame_count": 48,
+    "duration_ms": 1568,
+    "thumbnail": "data/thumbs/understand.jpg"
+  },
+  {
+    "term": "walk",
+    "label": "Walk",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Curved",
+    "handshape": "open_b",
+    "mean_reward": 0.6099,
+    "frame_count": 66,
+    "duration_ms": 2202,
+    "thumbnail": "data/thumbs/walk.jpg"
+  },
+  {
+    "term": "water",
+    "label": "Water",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Chin"
+    },
+    "movement": "Straight",
+    "handshape": "w",
+    "mean_reward": 0.6177,
+    "frame_count": 27,
+    "duration_ms": 901,
+    "thumbnail": "data/thumbs/water.jpg"
+  },
+  {
+    "term": "what_1",
+    "label": "What 1",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "5",
+    "mean_reward": 0.5511,
+    "frame_count": 70,
+    "duration_ms": 2336,
+    "thumbnail": "data/thumbs/what_1.jpg"
+  },
+  {
+    "term": "where",
+    "label": "Where",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "1",
+    "mean_reward": 0.6578,
+    "frame_count": 44,
+    "duration_ms": 1468,
+    "thumbnail": "data/thumbs/where.jpg"
+  },
+  {
+    "term": "who",
+    "label": "Who",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Chin"
+    },
+    "movement": "None",
+    "handshape": "l",
+    "mean_reward": 0.7494,
+    "frame_count": 47,
+    "duration_ms": 1535,
+    "thumbnail": "data/thumbs/who.jpg"
+  },
+  {
+    "term": "why",
+    "label": "Why",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Forehead"
+    },
+    "movement": "Straight",
+    "handshape": "y",
+    "mean_reward": 0.726,
+    "frame_count": 61,
+    "duration_ms": 2035,
+    "thumbnail": "data/thumbs/why.jpg"
+  },
+  {
+    "term": "wind",
+    "label": "Wind",
+    "source": "learned",
+    "sign_type": "SymmetricalOrAlternating",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "5",
+    "mean_reward": 0.6518,
+    "frame_count": 68,
+    "duration_ms": 2236,
+    "thumbnail": "data/thumbs/wind.jpg"
+  },
+  {
+    "term": "window",
+    "label": "Window",
+    "source": "learned",
+    "sign_type": "AsymmetricalSameHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "FingerRadial"
+    },
+    "movement": "Straight",
+    "handshape": "open_b",
+    "mean_reward": 0.5719,
+    "frame_count": 36,
+    "duration_ms": 1201,
+    "thumbnail": "data/thumbs/window.jpg"
+  },
+  {
+    "term": "woman",
+    "label": "Woman",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Head",
+      "minor": "Chin"
+    },
+    "movement": "Straight",
+    "handshape": "5",
+    "mean_reward": 0.7078,
+    "frame_count": 49,
+    "duration_ms": 1602,
+    "thumbnail": "data/thumbs/woman.jpg"
+  },
+  {
+    "term": "work",
+    "label": "Work",
+    "source": "learned",
+    "sign_type": "AsymmetricalSameHandshape",
+    "location": {
+      "major": "Hand",
+      "minor": "PalmBack"
+    },
+    "movement": "Straight",
+    "handshape": "s",
+    "mean_reward": 0.5409,
+    "frame_count": 41,
+    "duration_ms": 1368,
+    "thumbnail": "data/thumbs/work.jpg"
+  },
+  {
+    "term": "yes",
+    "label": "Yes",
+    "source": "learned",
+    "sign_type": "OneHanded",
+    "location": {
+      "major": "Neutral",
+      "minor": "Neutral"
+    },
+    "movement": "Straight",
+    "handshape": "s",
+    "mean_reward": 0.5574,
+    "frame_count": 53,
+    "duration_ms": 1735,
+    "thumbnail": "data/thumbs/yes.jpg"
+  }
+]

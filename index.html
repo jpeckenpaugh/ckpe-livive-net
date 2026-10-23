@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CKPE — Constrained Kinematic Pose Estimator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='30' r='18' fill='%2338bdf8'/><path d='M50 48 L50 82 M26 62 L50 56 L74 62' stroke='%2338bdf8' stroke-width='8' stroke-linecap='round' fill='none'/></svg>">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header & Navigation -->
+  <header class="app-header">
+    <div class="header-brand">
+      <a href="#/index" class="logo-link">
+        <span class="logo-text">CKPE</span>
+        <span class="logo-badge">v1 alpha</span>
+      </a>
+      <span class="header-subtitle">Constrained Kinematic Pose Estimator</span>
+    </div>
+    <nav class="header-nav">
+      <a href="#/index" id="nav-index" class="nav-btn active">Index</a>
+      <a href="#/detail" id="nav-detail" class="nav-btn">Detail</a>
+      <a href="#/provenance" id="nav-provenance" class="nav-btn">Provenance</a>
+      <a href="https://rigd.livive.net/" target="_blank" rel="noopener" class="nav-btn external-link">RigD 3D ↗</a>
+    </nav>
+  </header>
+
+  <!-- Hidden Video Element for Video Decoding/Sync -->
+  <video id="detailVideo" class="hidden-media" playsinline muted preload="auto"></video>
+
+  <!-- VIEW 1: INDEX -->
+  <main id="view-index" class="spa-view">
+    <div class="index-hero">
+      <div class="hero-content">
+        <h1>Compiled Kinematic Grammar</h1>
+        <p class="hero-sub">
+          A deterministic Domain Instruction Set (DIS) compiled from studio keyframes and specifications.
+          Offline RL compilation &bull; Zero generative models at runtime &bull; Right-arm Level 1 scope.
+        </p>
+      </div>
+      <div class="index-toolbar">
+        <div class="search-box">
+          <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+          </svg>
+          <input type="text" id="searchInput" placeholder="Search 109 terms by name, location, movement, or handshape..." autocomplete="off">
+          <button id="clearSearchBtn" class="clear-btn" style="display: none;">&times;</button>
+        </div>
+        <div class="filter-pills" id="filterPills">
+          <button class="pill-btn active" data-filter="all">All (<span id="count-all">109</span>)</button>
+          <button class="pill-btn" data-filter="learned">Learned (<span id="count-learned">100</span>)</button>
+          <button class="pill-btn" data-filter="authored">Authored (<span id="count-authored">9</span>)</button>
+          <button class="pill-btn" data-filter="loc-head">Head / Cranial</button>
+          <button class="pill-btn" data-filter="loc-chest">Chest / Thoracic</button>
+          <button class="pill-btn" data-filter="loc-neutral">Neutral Space</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="catalog-section">
+      <div class="catalog-status" id="catalogStatus">Loading catalog...</div>
+      <div class="term-grid" id="termGrid"></div>
+    </section>
+  </main>
+
+  <!-- VIEW 2: DETAIL -->
+  <main id="view-detail" class="spa-view" style="display: none;">
+    <div class="detail-topbar">
+      <a href="#/index" class="back-btn">&larr; Catalog</a>
+      <div class="detail-term-title">
+        <h2 id="detailTermName">Loading...</h2>
+        <span id="detailSourceBadge" class="badge badge-learned">learned</span>
+      </div>
+      <div class="detail-pagination">
+        <button id="prevTermBtn" class="step-btn" title="Previous Term">&larr; Prev</button>
+        <button id="nextTermBtn" class="step-btn" title="Next Term">Next &rarr;</button>
+      </div>
+    </div>
+
+    <div class="detail-workspace">
+      <!-- Left Column: Front Canvas & Visual Inspector -->
+      <section class="detail-visual-col">
+        <div class="canvas-card">
+          <div class="canvas-header-overlay">
+            <div id="rewardBadge" class="reward-badge">Reward: --</div>
+            <div class="overlay-mode-toggles">
+              <button class="mode-btn" data-mode="rig">Rig Only</button>
+              <button class="mode-btn active" data-mode="overlay">50% Overlay</button>
+              <button class="mode-btn" data-mode="sample">Sample Only</button>
+            </div>
+          </div>
+
+          <div class="canvas-container" id="canvasContainer">
+            <canvas id="detailCanvas"></canvas>
+          </div>
+
+          <!-- Touch-friendly Scrubbing Controller -->
+          <div class="scrubber-card">
+            <div class="phase-track-bar" id="phaseTrackBar">
+              <div class="phase-segment phase-prep" id="phasePrepSeg" title="Preparation">Prep</div>
+              <div class="phase-segment phase-stroke" id="phaseStrokeSeg" title="Stroke">Stroke</div>
+              <div class="phase-segment phase-retract" id="phaseRetractSeg" title="Retraction">Retract</div>
+            </div>
+            <input type="range" id="frameSlider" min="0" max="0" value="0" step="1" class="frame-slider">
+            
+            <div class="scrubber-controls">
+              <div class="playback-buttons">
+                <button id="stepPrevBtn" class="ctrl-btn" title="Step Back 1 Frame">&lang;</button>
+                <button id="playPauseBtn" class="ctrl-btn play-btn" title="Play/Pause">Play</button>
+                <button id="stepNextBtn" class="ctrl-btn" title="Step Forward 1 Frame">&rang;</button>
+                <button id="speedToggleBtn" class="ctrl-btn speed-btn" title="Playback Speed">1.0&times;</button>
+              </div>
+              <div class="scrubber-readout" id="scrubberReadout">
+                Frame <span id="currentFrameNum">1</span> / <span id="totalFramesNum">--</span> (<span id="currentFrameMs">0</span>ms) &bull; Phase: <span id="currentPhaseLabel">prep</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Kinematic State & Metadata -->
+      <section class="detail-data-col">
+        <!-- Authored Spec Callout (if authored) -->
+        <div class="data-card authored-spec-card" id="authoredSpecCard" style="display: none;">
+          <h3>Kinematic Specification</h3>
+          <p id="authoredSpecText"></p>
+        </div>
+
+        <!-- Joint Angle State Table & Delta Velocity Readout -->
+        <div class="data-card">
+          <div class="card-header-flex">
+            <h3>Joint Angles &amp; Velocity Deltas</h3>
+            <span class="sub-caption">&le; 12&deg;/frame zero-bamf bound</span>
+          </div>
+          <div class="table-scroll-container">
+            <table class="joint-state-table" id="jointTable">
+              <thead>
+                <tr>
+                  <th>Joint / DOF</th>
+                  <th>Current (&deg;)</th>
+                  <th>Delta (&Delta;)</th>
+                </tr>
+              </thead>
+              <tbody id="jointTableBody">
+                <!-- Data populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Term Provenance & Metadata Block -->
+        <div class="data-card">
+          <h3>Term Provenance &amp; Phonology</h3>
+          <dl class="metadata-dl">
+            <dt>Provenance Source</dt>
+            <dd id="metaSource">--</dd>
+
+            <dt>Sample Reference</dt>
+            <dd id="metaReference">--</dd>
+
+            <dt>Mean Reward Fit</dt>
+            <dd id="metaMeanReward">--</dd>
+
+            <dt>Duration &amp; Frames</dt>
+            <dd id="metaDuration">--</dd>
+
+            <dt>Phases (Prep &bull; Stroke &bull; Retract)</dt>
+            <dd id="metaPhaseSplit">--</dd>
+
+            <dt>Phonological Location</dt>
+            <dd id="metaLocation">--</dd>
+
+            <dt>Movement &amp; Handshape</dt>
+            <dd id="metaMovement">--</dd>
+          </dl>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- VIEW 3: PROVENANCE -->
+  <main id="view-provenance" class="spa-view" style="display: none;">
+    <article class="provenance-article">
+      <div class="provenance-header">
+        <h1>CKPE Thesis &amp; Provenance</h1>
+        <p class="provenance-lead">
+          The severance of knowledge acquisition from knowledge execution in expressive human kinematics.
+        </p>
+      </div>
+
+      <section class="thesis-block">
+        <h2>The CDE Hourglass Architecture</h2>
+        <p>
+          CKPE is a pipeline for compiling expressive human kinematics from paired image/skeleton samples into a deterministic runtime artifact, called a <strong>Domain Instruction Set (DIS)</strong>.
+        </p>
+        <p>
+          The architecture follows the same shape as the other <code>livive-net</code> projects: the probabilistic work &mdash; interrogating data, discovering structure, proposing poses &mdash; happens <strong>at build time</strong>, in an RL scorer and CNN oracle. What survives that interrogation is lowered into a small, integer-friendly, auditable DIS. The runtime never calls a generative model. It executes the compiled grammar.
+        </p>
+        <p>
+          v1 of CKPE is scoped to a single limb &mdash; the right arm &mdash; across roughly 100 ASL terms derived from studio keyframes of native signers. The SPA at <code>ckpe.livive.net</code> is the visible surface of that compilation: it shows <em>what</em> the compiler produced, <em>what evidence</em> it produced it from, and <em>how</em> the artifact fits into a broader architecture. It does not claim to understand ASL. It claims to have compiled a kinematic grammar for a constrained subset, and it shows its work.
+        </p>
+      </section>
+
+      <section class="thesis-block">
+        <h2>The Three-Level Gesture Decomposition</h2>
+        <table class="provenance-table">
+          <thead>
+            <tr>
+              <th>Level</th>
+              <th>Description</th>
+              <th>v1 Alpha Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. Body</strong></td>
+              <td>Gross kinematics &mdash; arm, shoulder, torso, head position</td>
+              <td><span class="badge badge-learned">In Scope (Right arm)</span></td>
+            </tr>
+            <tr>
+              <td><strong>2. Hands</strong></td>
+              <td>Finger configuration, wrist orientation</td>
+              <td><span class="badge badge-deferred">Deferred to Level 2</span></td>
+            </tr>
+            <tr>
+              <td><strong>3. Face</strong></td>
+              <td>Gaze, mouth morphemes, facial expression</td>
+              <td><span class="badge badge-deferred">Deferred to Level 3</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="caption">
+          Levels 2 and 3 are deferred to keep the dimensionality of the RL search tractable. The v1 claim is modest: the macroscopic kinematics of the right arm are compiled correctly, and the compilation method generalizes.
+        </p>
+      </section>
+
+      <section class="thesis-block">
+        <h2>Cross-Project Evidence Matrix</h2>
+        <table class="provenance-table">
+          <thead>
+            <tr>
+              <th>Project</th>
+              <th>What It Proves</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>cde</code></td>
+              <td>Bounded expertise can compile to invariant, language-free instruction sets.</td>
+            </tr>
+            <tr>
+              <td><code>mines-sm</code></td>
+              <td>A <code>no_std</code>, allocation-free, byte-exact deterministic core is viable.</td>
+            </tr>
+            <tr>
+              <td><code>trot</code></td>
+              <td>A neural network can be trained and exported from readable source.</td>
+            </tr>
+            <tr>
+              <td><code>ocr</code></td>
+              <td>Classical classifiers can be trained in-browser, from scratch.</td>
+            </tr>
+            <tr>
+              <td><code>fourcast</code></td>
+              <td>Heavyweight models reduce to portable ONNX artifacts.</td>
+            </tr>
+            <tr>
+              <td><code>rigd-livive-net</code></td>
+              <td>The biomechanical rig, the RL scorer, and the alpha render set.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="thesis-block thesis-callout">
+        <blockquote class="thesis-quote">
+          &ldquo;CKPE is a candidate DIS for expressive human kinematics. The RL scorer and CNN oracle are the build-time compiler. The rig, FK, projection, and state machine are the runtime artifact. The alpha render set is the first compiled artifact.&rdquo;
+        </blockquote>
+      </section>
+
+      <section class="thesis-block">
+        <h2>Honest Limits &amp; Boundaries (The Appendix)</h2>
+        <div class="limits-card">
+          <h3>Retraction of Accuracy Overreach</h3>
+          <p>
+            An earlier draft claimed <em>&ldquo;the macroscopic kinematics of the right arm are compiled correctly.&rdquo;</em> That is an overreach and is retracted:
+          </p>
+          <ol class="limits-list">
+            <li>
+              <strong>No true-3D ground truth:</strong> The alpha set was compiled from single-camera front-view recordings. The reward signal measures how well the projected rig overlaps the observed silhouette mask. It does not measure true 3D joint locations because front-view projection is depth-ambiguous. <em>&ldquo;Fit to the front view&rdquo;</em> is a defensible claim; <em>&ldquo;correct 3D pose&rdquo;</em> is not.
+            </li>
+            <li>
+              <strong>Not all source poses are reachable:</strong> v1 freezes the torso, shoulders, and head. When the source signer shrugged or leaned, the observed hand position is mathematically outside the rig's reachable set. The search finds the nearest wrong answer and reports a lower reward. The solution is the subsequent <em>&ldquo;tight at the roots&rdquo;</em> phase (unfreezing the spine and clavicles before solving the arm).
+            </li>
+            <li>
+              <strong>ASL is a structured test corpus, not a translation claim:</strong> CKPE uses ASL because it possesses well-segmented gestures, canonical resting states, and studio-controlled footage. CKPE is not an accessibility device or sign translation engine.
+            </li>
+            <li>
+              <strong>Deaf community review pending:</strong> Until fluent signers evaluate the compiled sequences, the claim is strictly <em>visual fit to the training sample</em>, not fluency in ASL.
+            </li>
+          </ol>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <!-- Application Entry Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
