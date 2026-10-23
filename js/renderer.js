@@ -48,7 +48,8 @@ export class CKPERenderer {
   }
 
   resize() {
-    const rect = this.canvas.getBoundingClientRect();
+    const parent = this.canvas.parentElement;
+    const rect = parent ? parent.getBoundingClientRect() : this.canvas.getBoundingClientRect();
     const w = Math.floor(rect.width);
     const h = Math.floor(rect.height);
     if (w > 0 && h > 0) {
