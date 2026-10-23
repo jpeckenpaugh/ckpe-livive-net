@@ -17,10 +17,12 @@ class CKPEApp {
     this.isPlaying = false;
     this.playbackSpeed = 1.0;
     this.displayMode = 'overlay'; // 'overlay', 'rig', 'sample'
+    this.showCornerViews = false;
     this.activeFilter = 'all';
     this.searchQuery = '';
     this.rafId = null;
     this.lastFrameTime = 0;
+    this.builderSteps = [];
 
     // DOM Elements
     this.views = {
@@ -65,6 +67,17 @@ class CKPEApp {
     this.authoredSpecText = document.getElementById('authoredSpecText');
     this.prevTermBtn = document.getElementById('prevTermBtn');
     this.nextTermBtn = document.getElementById('nextTermBtn');
+    this.toggleCornerViewsBtn = document.getElementById('toggleCornerViewsBtn');
+
+    // Chain Builder Modal DOM
+    this.chainBuilderModal = document.getElementById('chainBuilderModal');
+    this.openChainBuilderBtn = document.getElementById('openChainBuilderBtn');
+    this.closeChainModalBtn = document.getElementById('closeChainModalBtn');
+    this.cancelChainModalBtn = document.getElementById('cancelChainModalBtn');
+    this.compileChainBtn = document.getElementById('compileChainBtn');
+    this.addStepBtn = document.getElementById('addStepBtn');
+    this.chainNameInput = document.getElementById('chainNameInput');
+    this.chainStepsList = document.getElementById('chainStepsList');
 
     // Detail Metadata DOM
     this.metaSource = document.getElementById('metaSource');
@@ -190,6 +203,46 @@ class CKPEApp {
         btn.classList.add('active');
         this.displayMode = btn.dataset.mode;
         this.renderCurrentFrame();
+      });
+    });
+
+    // Corner views toggle
+    if (this.toggleCornerViewsBtn) {
+      this.toggleCornerViewsBtn.addEventListener('click', () => {
+        this.showCornerViews = !this.showCornerViews;
+        this.toggleCornerViewsBtn.classList.toggle('active', this.showCornerViews);
+        this.renderCurrentFrame();
+      });
+    }
+
+    // Movement Chain Builder triggers
+    if (this.openChainBuilderBtn) {
+      this.openChainBuilderBtn.addEventListener('click', () => this.openChainModal('you-me-right-agree'));
+    }
+    if (this.closeChainModalBtn) {
+      this.closeChainModalBtn.addEventListener('click', () => this.closeChainModal());
+    }
+    if (this.cancelChainModalBtn) {
+      this.cancelChainModalBtn.addEventListener('click', () => this.closeChainModal());
+    }
+    if (this.chainBuilderModal) {
+      this.chainBuilderModal.addEventListener('click', (e) => {
+        if (e.target === this.chainBuilderModal) this.closeChainModal();
+      });
+    }
+    if (this.addStepBtn) {
+      this.addStepBtn.addEventListener('click', () => {
+        this.addChainStep('point-you', '');
+      });
+    }
+    if (this.compileChainBtn) {
+      this.compileChainBtn.addEventListener('click', () => this.compileAndPreviewChain());
+    }
+
+    const templatePills = document.querySelectorAll('.template-pill');
+    templatePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        this.loadTemplateSteps(pill.dataset.template);
       });
     });
 
@@ -545,7 +598,8 @@ class CKPEApp {
       underlay: underlaySource,
       calib: this.currentTermData.calibration,
       rightHandTip: frame.rightHandTip,
-      overlayAlpha: 0.50
+      overlayAlpha: 0.50,
+      showCornerViews: this.showCornerViews
     });
   }
 
@@ -600,6 +654,268 @@ class CKPEApp {
 
     const nextTerm = this.catalog[nextIdx].term;
     window.location.hash = `#/detail/${nextTerm}`;
+  }
+
+  // --------------------------------------------------------------------------
+  // Movement Chain Builder Engine
+  // --------------------------------------------------------------------------
+  openChainModal(templateName = 'you-me-right-agree') {
+    if (this.isPlaying) this.pause();
+    this.chainBuilderModal.style.display = 'flex';
+    this.loadTemplateSteps(templateName);
+    this.chainNameInput.focus();
+  }
+
+  closeChainModal() {
+    this.chainBuilderModal.style.display = 'none';
+  }
+
+  loadTemplateSteps(templateId) {
+    if (templateId === 'you-me-right-agree') {
+      this.chainNameInput.value = 'Chain: You → Me → Right → Agree';
+      this.builderSteps = [
+        { primary: 'reset', blend: '', duration: 0.8 },
+        { primary: 'point-you', blend: '', duration: 0.8 },
+        { primary: 'point-me', blend: '', duration: 0.8 },
+        { primary: 'point-right', blend: 'agree', duration: 1.0 }
+      ];
+    } else if (templateId === 'you-me-left-disagree') {
+      this.chainNameInput.value = 'Chain: You → Me → Left + Disagree';
+      this.builderSteps = [
+        { primary: 'reset', blend: '', duration: 0.8 },
+        { primary: 'point-you', blend: '', duration: 0.8 },
+        { primary: 'point-me', blend: '', duration: 0.8 },
+        { primary: 'point-left', blend: 'disagree', duration: 1.0 }
+      ];
+    } else if (templateId === 'handsup-reset-hats') {
+      this.chainNameInput.value = 'Chain: Hands Up → Rest → Hats Off';
+      this.builderSteps = [
+        { primary: 'reset', blend: '', duration: 0.8 },
+        { primary: 'hands-up', blend: '', duration: 1.0 },
+        { primary: 'reset', blend: '', duration: 0.8 },
+        { primary: 'hats-off', blend: '', duration: 1.0 }
+      ];
+    } else {
+      this.chainNameInput.value = 'Custom Sequence';
+      this.builderSteps = [
+        { primary: 'reset', blend: '', duration: 0.8 },
+        { primary: 'point-you', blend: '', duration: 0.8 }
+      ];
+    }
+    this.renderChainStepsList();
+  }
+
+  addChainStep(primary = 'point-you', blend = '') {
+    this.builderSteps.push({ primary, blend, duration: 0.8 });
+    this.renderChainStepsList();
+  }
+
+  removeChainStep(idx) {
+    if (this.builderSteps.length <= 1) return;
+    this.builderSteps.splice(idx, 1);
+    this.renderChainStepsList();
+  }
+
+  renderChainStepsList() {
+    const actions = [
+      { id: 'reset', label: 'Rest / Reset (Neutral)' },
+      { id: 'point-you', label: 'Point You (Forward)' },
+      { id: 'point-me', label: 'Point Me (Chest)' },
+      { id: 'point-right', label: 'Point Right (Lateral)' },
+      { id: 'point-left', label: 'Point Left (Cross-Body)' },
+      { id: 'point-it', label: 'Point It (Forward Lateral)' },
+      { id: 'agree', label: 'Agree (Head Nod Yes)' },
+      { id: 'disagree', label: 'Disagree (Head Shake No)' },
+      { id: 'hands-up', label: 'Hands Up (Bilateral)' },
+      { id: 'hats-off', label: 'Hats Off (Salute/Tip)' }
+    ];
+
+    const blends = [
+      { id: '', label: 'No Simultaneous Head Action' },
+      { id: 'agree', label: '+ Nod Head (Agree)' },
+      { id: 'disagree', label: '+ Shake Head (Disagree)' }
+    ];
+
+    this.chainStepsList.innerHTML = this.builderSteps.map((step, idx) => {
+      const actionOptions = actions.map(a =>
+        `<option value="${a.id}" ${a.id === step.primary ? 'selected' : ''}>${a.label}</option>`
+      ).join('');
+
+      const blendOptions = blends.map(b =>
+        `<option value="${b.id}" ${b.id === step.blend ? 'selected' : ''}>${b.label}</option>`
+      ).join('');
+
+      return `
+        <div class="step-row" data-index="${idx}">
+          <span class="step-num-pill">${idx + 1}</span>
+          <select class="step-select" data-field="primary">
+            ${actionOptions}
+          </select>
+          <select class="step-blend-select" data-field="blend">
+            ${blendOptions}
+          </select>
+          <button class="step-remove-btn" title="Remove Step" ${this.builderSteps.length <= 1 ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : ''}>&times;</button>
+        </div>
+      `;
+    }).join('');
+
+    const rows = this.chainStepsList.querySelectorAll('.step-row');
+    rows.forEach(row => {
+      const idx = parseInt(row.dataset.index, 10);
+      const primSelect = row.querySelector('.step-select');
+      const blendSelect = row.querySelector('.step-blend-select');
+      const removeBtn = row.querySelector('.step-remove-btn');
+
+      primSelect.addEventListener('change', (e) => {
+        this.builderSteps[idx].primary = e.target.value;
+      });
+      blendSelect.addEventListener('change', (e) => {
+        this.builderSteps[idx].blend = e.target.value;
+      });
+      removeBtn.addEventListener('click', () => {
+        this.removeChainStep(idx);
+      });
+    });
+  }
+
+  compileAndPreviewChain() {
+    const rawName = this.chainNameInput.value.trim() || 'Custom Sequence';
+    const chainId = 'custom-' + Date.now().toString(36);
+
+    const actionsDB = {
+      'reset': { targets: { ...this.rig.defaultState } },
+      'point-you': { targets: { rightShoulderFlexion: 60, rightShoulderRotation: 0, rightShoulderAngle: -2, rightElbowBend: 40 } },
+      'point-me': { targets: { rightShoulderAngle: 20, rightShoulderFlexion: 60, rightShoulderRotation: -110, rightElbowBend: 130 } },
+      'point-right': { targets: { rightShoulderAngle: -60, rightShoulderFlexion: 0, rightShoulderRotation: 70, rightElbowBend: 50 } },
+      'point-left': { targets: { rightShoulderAngle: 45, rightShoulderFlexion: 45, rightShoulderRotation: -90, rightElbowBend: 50 } },
+      'point-it': { targets: { rightShoulderFlexion: 60, rightShoulderRotation: 50, rightShoulderAngle: -2, rightElbowBend: 40 } },
+      'hands-up': { targets: { shoulderElevation: 10, rightShoulderAngle: 8, rightShoulderFlexion: 150, rightShoulderRotation: -60, leftShoulderAngle: -8, leftShoulderFlexion: 150, leftShoulderRotation: -60, rightElbowBend: 20, leftElbowBend: 20 } },
+      'hats-off': { targets: { rightShoulderAngle: -15, rightShoulderFlexion: 115, rightShoulderRotation: 30, rightElbowBend: 110 } },
+      'agree': { sine: { stateKey: 'headPitch', amplitude: 20, cycles: 2 } },
+      'disagree': { sine: { stateKey: 'neckYaw', amplitude: 40, cycles: 2 } }
+    };
+
+    const fps = 30;
+    const stepDurationS = 0.85;
+    const framesPerStep = Math.round(fps * stepDurationS);
+    const steps = this.builderSteps;
+    const totalFrames = steps.length * framesPerStep;
+    const totalDurationMs = Math.round(steps.length * stepDurationS * 1000);
+
+    const frames = [];
+    let currentState = { ...this.rig.defaultState };
+
+    steps.forEach((step, stepIdx) => {
+      const startState = { ...currentState };
+      const primAct = actionsDB[step.primary] || {};
+      const blendAct = step.blend ? actionsDB[step.blend] : null;
+
+      const stepTargets = { ...(primAct.targets || {}) };
+      const stepSines = [];
+      if (primAct.sine) stepSines.push(primAct.sine);
+      if (blendAct && blendAct.sine) stepSines.push(blendAct.sine);
+      if (blendAct && blendAct.targets) Object.assign(stepTargets, blendAct.targets);
+
+      for (let fIdx = 0; fIdx < framesPerStep; fIdx++) {
+        const globalIdx = frames.length;
+        const tNorm = fIdx / Math.max(framesPerStep - 1, 1);
+        const ease = 0.5 - 0.5 * Math.cos(tNorm * Math.PI);
+        const tsMs = Math.round((globalIdx / Math.max(totalFrames - 1, 1)) * totalDurationMs);
+        const tsS = +(tsMs / 1000).toFixed(3);
+
+        const frameState = { ...startState };
+        for (const [k, tgt] of Object.entries(stepTargets)) {
+          const sVal = startState[k] !== undefined ? startState[k] : (this.rig.defaultState[k] || 0);
+          frameState[k] = +(sVal + (tgt - sVal) * ease).toFixed(1);
+        }
+
+        stepSines.forEach(sine => {
+          const k = sine.stateKey;
+          const amp = sine.amplitude;
+          const cycles = sine.cycles;
+          frameState[k] = +(amp * Math.sin(tNorm * Math.PI * 2 * cycles)).toFixed(1);
+        });
+
+        // Phase tagging
+        const progress = globalIdx / Math.max(totalFrames - 1, 1);
+        const phase = progress < 0.25 ? 'prep' : (progress < 0.75 ? 'stroke' : 'retract');
+
+        frames.push({
+          frame_index: globalIdx,
+          timestamp_ms: tsMs,
+          timestamp_s: tsS,
+          phase,
+          rig_state: frameState,
+          reward: 1.0,
+          reward_details: { authoring_fidelity: 1.0 },
+          rightHandTip: null
+        });
+
+        currentState = frameState;
+      }
+    });
+
+    const phaseCounts = { prep: 0, stroke: 0, retract: 0 };
+    frames.forEach(f => { phaseCounts[f.phase]++; });
+
+    const stepLabels = steps.map(s => {
+      const p = s.primary.replace('-', ' ');
+      return s.blend ? `${p} + ${s.blend}` : p;
+    }).join(' → ');
+
+    const newTermData = {
+      term: chainId,
+      label: rawName,
+      source: 'authored',
+      sign_type: 'CompoundGesture',
+      location: { major: 'Neutral', minor: 'Custom Chain' },
+      movement: 'Compound Chained Sequence',
+      handshape: 'Authored',
+      authored_spec: `User-defined chained gesture: ${stepLabels} (${steps.length} steps). Strictly velocity-bounded (≤ 12°/frame).`,
+      code: 'AUTH-' + chainId.toUpperCase(),
+      source_url: '',
+      calibration: null,
+      mean_reward: null,
+      frame_count: frames.length,
+      duration_ms: totalDurationMs,
+      phase_split: phaseCounts,
+      video: null,
+      thumbnail: null,
+      frames
+    };
+
+    // Cache term and add to catalog
+    this.cachedTerms.set(chainId, newTermData);
+    const catalogEntry = {
+      term: chainId,
+      label: rawName,
+      source: 'authored',
+      sign_type: 'CompoundGesture',
+      location: { major: 'Neutral', minor: 'Custom Chain' },
+      movement: 'Compound Chained Sequence',
+      handshape: 'Authored',
+      mean_reward: null,
+      frame_count: frames.length,
+      duration_ms: totalDurationMs,
+      thumbnail: null
+    };
+
+    this.catalog.unshift(catalogEntry);
+    this.applyFilters();
+
+    // Update counts
+    const authoredCount = this.catalog.filter(t => t.source === 'authored').length;
+    document.getElementById('count-all').textContent = this.catalog.length;
+    document.getElementById('count-authored').textContent = authoredCount;
+
+    // Close modal & jump to Detail
+    this.closeChainModal();
+    window.location.hash = `#/detail/${chainId}`;
+
+    // Auto-play preview
+    setTimeout(() => {
+      this.play();
+    }, 150);
   }
 }
 

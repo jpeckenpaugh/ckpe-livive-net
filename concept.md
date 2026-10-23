@@ -103,12 +103,12 @@ A static page. No interactivity. This is where the citation work happens.
 
   | Project | What it proves |
   |---|---|
-  | `cde` | Bounded expertise can compile to invariant, language-free instruction sets |
-  | `mines-sm` | A `no_std`, allocation-free, byte-exact deterministic core is viable |
-  | `trot` | A neural network can be trained and exported from readable source |
-  | `ocr` | Classical classifiers can be trained in-browser, from scratch |
-  | `fourcast` | Heavyweight models reduce to portable ONNX artifacts |
-  | `rigd-livive-net` | The rig, the scorer, and the alpha render set |
+  | [`cde`](https://cde.livive.net/) | Bounded expertise can compile to invariant, language-free instruction sets |
+  | [`mines-sm`](https://github.com/jpeckenpaugh/mines-sm) | A `no_std`, allocation-free, byte-exact deterministic core is viable |
+  | [`trot`](https://trot.livive.net/) | A neural network can be trained and exported from readable source |
+  | [`ocr`](https://ocr.livive.net/) | Classical classifiers can be trained in-browser, from scratch |
+  | [`fourcast`](https://fourcast.livive.net/) | Heavyweight models reduce to portable ONNX artifacts |
+  | [`rigd-livive-net`](https://rigd.livive.net/) | The rig, the scorer, and the alpha render set |
 
 - One framing sentence: *"CKPE is a candidate DIS for expressive human kinematics. The RL scorer and CNN oracle are the build-time compiler. The rig, FK, projection, and state machine are the runtime artifact. The alpha render set is the first compiled artifact."*
 - An honest limits block. See below.

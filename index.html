@@ -21,6 +21,7 @@
       <a href="#/index" id="nav-index" class="nav-btn active">Index</a>
       <a href="#/detail" id="nav-detail" class="nav-btn">Detail</a>
       <a href="#/provenance" id="nav-provenance" class="nav-btn">Provenance</a>
+      <a href="https://github.com/jpeckenpaugh/ckpe-livive-net" target="_blank" rel="noopener" class="nav-btn github-link">GitHub ↗</a>
       <a href="https://rigd.livive.net/" target="_blank" rel="noopener" class="nav-btn external-link">RigD 3D ↗</a>
     </nav>
   </header>
@@ -47,12 +48,13 @@
           <button id="clearSearchBtn" class="clear-btn" style="display: none;">&times;</button>
         </div>
         <div class="filter-pills" id="filterPills">
-          <button class="pill-btn active" data-filter="all">All (<span id="count-all">109</span>)</button>
+          <button class="pill-btn active" data-filter="all">All (<span id="count-all">111</span>)</button>
           <button class="pill-btn" data-filter="learned">Learned (<span id="count-learned">100</span>)</button>
-          <button class="pill-btn" data-filter="authored">Authored (<span id="count-authored">9</span>)</button>
+          <button class="pill-btn" data-filter="authored">Authored (<span id="count-authored">11</span>)</button>
           <button class="pill-btn" data-filter="loc-head">Head / Cranial</button>
           <button class="pill-btn" data-filter="loc-chest">Chest / Thoracic</button>
           <button class="pill-btn" data-filter="loc-neutral">Neutral Space</button>
+          <button id="openChainBuilderBtn" class="pill-btn chain-builder-pill">✨ Build Custom Chain</button>
         </div>
       </div>
     </div>
@@ -83,10 +85,13 @@
         <div class="canvas-card">
           <div class="canvas-header-overlay">
             <div id="rewardBadge" class="reward-badge">Reward: --</div>
-            <div class="overlay-mode-toggles">
-              <button class="mode-btn" data-mode="rig">Rig Only</button>
-              <button class="mode-btn active" data-mode="overlay">50% Overlay</button>
-              <button class="mode-btn" data-mode="sample">Sample Only</button>
+            <div class="canvas-header-actions">
+              <button id="toggleCornerViewsBtn" class="mode-btn corner-btn" title="Toggle Side/Top/Oblique Corner Views">📐 Corner Views</button>
+              <div class="overlay-mode-toggles">
+                <button class="mode-btn" data-mode="rig">Rig Only</button>
+                <button class="mode-btn active" data-mode="overlay">50% Overlay</button>
+                <button class="mode-btn" data-mode="sample">Sample Only</button>
+              </div>
             </div>
           </div>
 
@@ -245,27 +250,27 @@
           </thead>
           <tbody>
             <tr>
-              <td><code>cde</code></td>
+              <td><a href="https://cde.livive.net/" target="_blank" rel="noopener"><code>cde</code> ↗</a></td>
               <td>Bounded expertise can compile to invariant, language-free instruction sets.</td>
             </tr>
             <tr>
-              <td><code>mines-sm</code></td>
+              <td><a href="https://github.com/jpeckenpaugh/mines-sm" target="_blank" rel="noopener"><code>mines-sm</code> ↗</a></td>
               <td>A <code>no_std</code>, allocation-free, byte-exact deterministic core is viable.</td>
             </tr>
             <tr>
-              <td><code>trot</code></td>
+              <td><a href="https://trot.livive.net/" target="_blank" rel="noopener"><code>trot</code> ↗</a></td>
               <td>A neural network can be trained and exported from readable source.</td>
             </tr>
             <tr>
-              <td><code>ocr</code></td>
+              <td><a href="https://ocr.livive.net/" target="_blank" rel="noopener"><code>ocr</code> ↗</a></td>
               <td>Classical classifiers can be trained in-browser, from scratch.</td>
             </tr>
             <tr>
-              <td><code>fourcast</code></td>
+              <td><a href="https://fourcast.livive.net/" target="_blank" rel="noopener"><code>fourcast</code> ↗</a></td>
               <td>Heavyweight models reduce to portable ONNX artifacts.</td>
             </tr>
             <tr>
-              <td><code>rigd-livive-net</code></td>
+              <td><a href="https://rigd.livive.net/" target="_blank" rel="noopener"><code>rigd-livive-net</code> ↗</a></td>
               <td>The biomechanical rig, the RL scorer, and the alpha render set.</td>
             </tr>
           </tbody>
@@ -303,6 +308,54 @@
       </section>
     </article>
   </main>
+
+  <!-- MOVEMENT CHAIN BUILDER MODAL -->
+  <div id="chainBuilderModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-badge">Authored DIS</span>
+          <h3>Custom Movement Chain Builder</h3>
+        </div>
+        <button id="closeChainModalBtn" class="modal-close-btn" title="Close Modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-subtitle">
+          Construct custom sequential or parallel upper-body gesture chains. All interpolated motion satisfies the strict zero-bamf bound (&le; 12&deg;/frame).
+        </p>
+
+        <div class="modal-form-row">
+          <label for="chainNameInput">Sequence Label</label>
+          <input type="text" id="chainNameInput" value="My Custom Sequence" class="modal-input" maxlength="40">
+        </div>
+
+        <div class="chain-builder-section">
+          <div class="chain-builder-toolbar">
+            <span class="section-label">Ordered Gesture Steps</span>
+            <button id="addStepBtn" class="ctrl-btn add-step-btn">+ Add Step</button>
+          </div>
+          <div id="chainStepsList" class="chain-steps-list">
+            <!-- Dynamic step rows populated by app.js -->
+          </div>
+        </div>
+
+        <div class="chain-templates-section">
+          <span class="section-label">Quick Templates:</span>
+          <div class="templates-buttons">
+            <button class="template-pill" data-template="you-me-right-agree">You &rarr; Me &rarr; Right &rarr; Yes</button>
+            <button class="template-pill" data-template="you-me-left-disagree">You &rarr; Me &rarr; Left + No</button>
+            <button class="template-pill" data-template="handsup-reset-hats">Hands Up &rarr; Rest &rarr; Hats Off</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button id="cancelChainModalBtn" class="ctrl-btn">Cancel</button>
+        <button id="compileChainBtn" class="ctrl-btn play-btn compile-btn">Compile &amp; Preview Sequence &rarr;</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Application Entry Script -->
   <script type="module" src="js/app.js"></script>

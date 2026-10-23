@@ -1600,6 +1600,38 @@
     "thumbnail": "data/thumbs/water.jpg"
   },
   {
+    "term": "we-dont-go-left",
+    "label": "We Don't Go Left",
+    "source": "authored",
+    "sign_type": "CompoundGesture",
+    "location": {
+      "major": "Neutral",
+      "minor": "Dynamic Space"
+    },
+    "movement": "Compound Chained Sequence",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 96,
+    "duration_ms": 3200,
+    "thumbnail": null
+  },
+  {
+    "term": "we-go-right",
+    "label": "We Go Right",
+    "source": "authored",
+    "sign_type": "CompoundGesture",
+    "location": {
+      "major": "Neutral",
+      "minor": "Dynamic Space"
+    },
+    "movement": "Compound Chained Sequence",
+    "handshape": "Authored",
+    "mean_reward": null,
+    "frame_count": 120,
+    "duration_ms": 4000,
+    "thumbnail": null
+  },
+  {
     "term": "what_1",
     "label": "What 1",
     "source": "learned",
