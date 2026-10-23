@@ -6,6 +6,67 @@
 import { Rig3D } from './rig.js';
 import { CKPERenderer } from './renderer.js';
 
+export class CKPETTS {
+  constructor() {
+    this.synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
+    this.enabled = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('ckpe_tts_enabled') === 'true';
+    this.voice = null;
+    this.voiceName = 'Female US (Kokoro / System)';
+    if (this.synth) {
+      this.initVoice();
+      if (this.synth.onvoiceschanged !== undefined) {
+        this.synth.onvoiceschanged = () => this.initVoice();
+      }
+    }
+  }
+
+  initVoice() {
+    if (!this.synth) return;
+    const voices = this.synth.getVoices();
+    if (!voices || voices.length === 0) return;
+
+    // Prioritize Kokoro / high-quality female US English voice
+    const femaleUS = voices.find(v => {
+      const n = v.name.toLowerCase();
+      return (n.includes('kokoro') || n.includes('af_heart') || n.includes('heart') || n.includes('bella') || n.includes('sarah') || n.includes('nicole')) && (v.lang.startsWith('en'));
+    }) || voices.find(v => {
+      const n = v.name.toLowerCase();
+      return (n.includes('samantha') || n.includes('karen') || n.includes('victoria') || n.includes('allison') || n.includes('ava') || n.includes('female') || n.includes('zira') || n.includes('jenny')) && (v.lang.startsWith('en'));
+    }) || voices.find(v => v.lang === 'en-US') || voices.find(v => v.lang.startsWith('en'));
+
+    if (femaleUS) {
+      this.voice = femaleUS;
+      this.voiceName = femaleUS.name;
+    }
+  }
+
+  toggle() {
+    this.enabled = !this.enabled;
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('ckpe_tts_enabled', this.enabled ? 'true' : 'false');
+    }
+    if (!this.enabled && this.synth) {
+      this.synth.cancel();
+    }
+    return this.enabled;
+  }
+
+  speak(text) {
+    if (!this.enabled || !this.synth || !text) return;
+    try {
+      this.synth.cancel();
+      const clean = text.replace(/[-_]/g, ' ').trim();
+      const utter = new SpeechSynthesisUtterance(clean);
+      if (this.voice) utter.voice = this.voice;
+      utter.pitch = 1.05;
+      utter.rate = 0.95;
+      this.synth.speak(utter);
+    } catch (err) {
+      console.warn('TTS speak error:', err);
+    }
+  }
+}
+
 class CKPEApp {
   constructor() {
     this.rigSpec = null;
@@ -70,6 +131,7 @@ class CKPEApp {
     this.prevTermBtn = document.getElementById('prevTermBtn');
     this.nextTermBtn = document.getElementById('nextTermBtn');
     this.toggleCornerViewsBtn = document.getElementById('toggleCornerViewsBtn');
+    this.detailTtsBtn = document.getElementById('detailTtsBtn');
 
     // Chain Builder Modal DOM
     this.chainBuilderModal = document.getElementById('chainBuilderModal');
@@ -90,9 +152,14 @@ class CKPEApp {
     this.metaLocation = document.getElementById('metaLocation');
     this.metaMovement = document.getElementById('metaMovement');
 
+    // TTS Controller
+    this.tts = new CKPETTS();
+
     // Speech-to-Sign DOM
-    this.micBtn = document.getElementById('micBtn');
-    this.micLabel = document.getElementById('micLabel');
+    this.micLiveBtn = document.getElementById('micLiveBtn');
+    this.micLiveLabel = document.getElementById('micLiveLabel');
+    this.micChainBtn = document.getElementById('micChainBtn');
+    this.micChainLabel = document.getElementById('micChainLabel');
     this.speechTextInput = document.getElementById('speechTextInput');
     this.speechClearBtn = document.getElementById('speechClearBtn');
     this.speechAutocomplete = document.getElementById('speechAutocomplete');
@@ -104,6 +171,7 @@ class CKPEApp {
     this.speechCanvas = document.getElementById('speechCanvas');
     this.speechActiveWordBadge = document.getElementById('speechActiveWordBadge');
     this.speechCornerViewsBtn = document.getElementById('speechCornerViewsBtn');
+    this.speechTtsBtn = document.getElementById('speechTtsBtn');
     this.speechReplayBtn = document.getElementById('speechReplayBtn');
     this.speechPauseBtn = document.getElementById('speechPauseBtn');
     this.speechProgressText = document.getElementById('speechProgressText');
@@ -130,8 +198,12 @@ class CKPEApp {
     }
 
     // Speech state
-    this.speechRecognition = null;
-    this.isListening = false;
+    this.liveRecognition = null;
+    this.chainRecognition = null;
+    this.isLiveSpeaking = false;
+    this.isChainDictating = false;
+    this.speechSinglePass = false;
+    this.lastSpokenLabel = null;
     this.speechRafId = null;
     this.speechIsPlaying = false;
     this.speechFrames = [];
@@ -274,6 +346,22 @@ class CKPEApp {
       });
     }
 
+    // TTS Voice Toggle Handlers
+    const handleTtsToggle = () => {
+      const isEnabled = this.tts.toggle();
+      this.updateTtsUi();
+      if (isEnabled) {
+        this.tts.speak('TTS voice enabled');
+      }
+    };
+    if (this.detailTtsBtn) {
+      this.detailTtsBtn.addEventListener('click', handleTtsToggle);
+    }
+    if (this.speechTtsBtn) {
+      this.speechTtsBtn.addEventListener('click', handleTtsToggle);
+    }
+    this.updateTtsUi();
+
     // Movement Chain Builder triggers
     if (this.openChainBuilderBtn) {
       this.openChainBuilderBtn.addEventListener('click', () => this.openChainModal('you-me-right-agree'));
@@ -321,6 +409,8 @@ class CKPEApp {
 
     if (hash.startsWith('#/detail')) {
       if (this.speechIsPlaying) this.pauseSpeechLoop();
+      this.stopLiveSpeak();
+      this.stopChainDictation();
       this.switchView('detail');
       this.navBtns.detail.classList.add('active');
       const parts = hash.split('/');
@@ -339,11 +429,15 @@ class CKPEApp {
     } else if (hash.startsWith('#/provenance')) {
       if (this.isPlaying) this.pause();
       if (this.speechIsPlaying) this.pauseSpeechLoop();
+      this.stopLiveSpeak();
+      this.stopChainDictation();
       this.switchView('provenance');
       this.navBtns.provenance.classList.add('active');
     } else {
       if (this.isPlaying) this.pause();
       if (this.speechIsPlaying) this.pauseSpeechLoop();
+      this.stopLiveSpeak();
+      this.stopChainDictation();
       this.switchView('index');
       this.navBtns.index.classList.add('active');
     }
@@ -686,6 +780,10 @@ class CKPEApp {
     this.playPauseBtn.classList.add('playing');
     this.lastFrameTime = performance.now();
 
+    if (this.currentFrameIdx === 0 && this.currentTermData.label) {
+      this.tts.speak(this.currentTermData.label);
+    }
+
     const loop = (now) => {
       if (!this.isPlaying) return;
 
@@ -725,8 +823,9 @@ class CKPEApp {
     if (nextIdx < 0) nextIdx = this.catalog.length - 1;
     if (nextIdx >= this.catalog.length) nextIdx = 0;
 
-    const nextTerm = this.catalog[nextIdx].term;
-    window.location.hash = `#/detail/${nextTerm}`;
+    const nextTerm = this.catalog[nextIdx];
+    window.location.hash = `#/detail/${nextTerm.term}`;
+    this.tts.speak(nextTerm.label);
   }
 
   // --------------------------------------------------------------------------
@@ -1098,73 +1197,272 @@ class CKPEApp {
         this.speechTextInput.value = text;
         this.speechClearBtn.style.display = 'block';
         this.closeAutocomplete();
+        this.speechSinglePass = false;
+        this.lastSpokenLabel = null;
         this.runSpeechSign(text);
       });
     });
 
-    // Initialize Web Speech Recognition
-    this.initSpeechRecognition();
+    // Live Speak (Interactive command & response) button
+    if (this.micLiveBtn) {
+      this.micLiveBtn.addEventListener('click', () => {
+        this.toggleLiveSpeak();
+      });
+    }
+
+    // Dictate Phrase / Chain button
+    if (this.micChainBtn) {
+      this.micChainBtn.addEventListener('click', () => {
+        this.toggleChainDictation();
+      });
+    }
   }
 
-  initSpeechRecognition() {
+  updateTtsUi() {
+    const isEnabled = this.tts.enabled;
+    const label = isEnabled ? 'TTS: On (Kokoro)' : 'TTS: Off';
+    const icon = isEnabled ? '🔊' : '🔇';
+
+    [this.detailTtsBtn, this.speechTtsBtn].forEach(btn => {
+      if (!btn) return;
+      btn.classList.toggle('active', isEnabled);
+      const iconEl = btn.querySelector('.tts-icon');
+      const labelEl = btn.querySelector('.tts-label');
+      if (iconEl) iconEl.textContent = icon;
+      if (labelEl) labelEl.textContent = label;
+      btn.title = isEnabled ? 'Disable Text-to-Speech (TTS)' : 'Enable Text-to-Speech (TTS female US voice)';
+    });
+  }
+
+  toggleLiveSpeak() {
+    if (this.isLiveSpeaking) {
+      this.stopLiveSpeak();
+    } else {
+      if (this.isChainDictating) this.stopChainDictation();
+      this.startLiveSpeak();
+    }
+  }
+
+  startLiveSpeak() {
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRec) {
-      if (this.speechStatusText) {
-        this.speechStatusText.textContent = 'Microphone speech recognition is not supported in this browser; keyboard typing with autocomplete is fully enabled.';
-      }
-      if (this.micBtn) {
-        this.micBtn.style.opacity = '0.6';
-        this.micBtn.title = 'Speech Recognition not supported in this browser. Use keyboard typing.';
-      }
+      this.speechStatusText.textContent = 'Microphone speech recognition is not supported in this browser; keyboard typing with autocomplete is fully enabled.';
       return;
     }
 
     try {
-      this.speechRecognition = new SpeechRec();
-      this.speechRecognition.continuous = false;
-      this.speechRecognition.interimResults = false;
-      this.speechRecognition.lang = 'en-US';
+      this.liveRecognition = new SpeechRec();
+      this.liveRecognition.continuous = true;
+      this.liveRecognition.interimResults = false;
+      this.liveRecognition.lang = 'en-US';
 
-      this.speechRecognition.onstart = () => {
-        this.isListening = true;
-        this.micBtn.classList.add('listening');
-        this.micLabel.textContent = 'Listening...';
-        this.speechStatusText.textContent = 'Listening... Speak a sign or phrase (e.g. "Hello", "Thank you", "Water", "Friend").';
+      this.liveRecognition.onstart = () => {
+        this.isLiveSpeaking = true;
+        this.micLiveBtn.classList.add('listening');
+        this.micLiveLabel.textContent = 'Listening (Live)...';
+        this.speechStatusText.textContent = '🟢 Live Speak Active: Speak a word (e.g. "Hello", "Water", "Friend"). Model signs once, then waits for next word.';
       };
 
-      this.speechRecognition.onresult = (event) => {
+      this.liveRecognition.onresult = (event) => {
+        const resultIdx = event.resultIndex !== undefined ? event.resultIndex : event.results.length - 1;
+        const transcript = event.results[resultIdx][0].transcript.trim();
+        if (transcript) {
+          this.executeLiveSign(transcript);
+        }
+      };
+
+      this.liveRecognition.onerror = (event) => {
+        if (event.error !== 'no-speech') {
+          console.warn('Live recognition error:', event.error);
+        }
+      };
+
+      this.liveRecognition.onend = () => {
+        if (this.isLiveSpeaking) {
+          try {
+            this.liveRecognition.start();
+          } catch (e) {
+            this.isLiveSpeaking = false;
+            this.micLiveBtn.classList.remove('listening');
+            this.micLiveLabel.textContent = '⚡ Live Speak';
+          }
+        } else {
+          this.micLiveBtn.classList.remove('listening');
+          this.micLiveLabel.textContent = '⚡ Live Speak';
+        }
+      };
+
+      this.liveRecognition.start();
+    } catch (err) {
+      console.warn('Failed to start Live Speech:', err);
+    }
+  }
+
+  stopLiveSpeak() {
+    this.isLiveSpeaking = false;
+    if (this.liveRecognition) {
+      try {
+        this.liveRecognition.stop();
+      } catch (e) {}
+    }
+    if (this.micLiveBtn) {
+      this.micLiveBtn.classList.remove('listening');
+      this.micLiveLabel.textContent = '⚡ Live Speak';
+    }
+    this.speechStatusText.textContent = 'Live Speak stopped. Tap "⚡ Live Speak" or type a sign.';
+  }
+
+  toggleChainDictation() {
+    if (this.isChainDictating) {
+      this.stopChainDictation();
+    } else {
+      if (this.isLiveSpeaking) this.stopLiveSpeak();
+      this.startChainDictation();
+    }
+  }
+
+  startChainDictation() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+      this.speechStatusText.textContent = 'Microphone speech recognition is not supported in this browser; keyboard typing with autocomplete is fully enabled.';
+      return;
+    }
+
+    try {
+      this.chainRecognition = new SpeechRec();
+      this.chainRecognition.continuous = false;
+      this.chainRecognition.interimResults = false;
+      this.chainRecognition.lang = 'en-US';
+
+      this.chainRecognition.onstart = () => {
+        this.isChainDictating = true;
+        this.micChainBtn.classList.add('listening');
+        this.micChainLabel.textContent = 'Listening (Phrase)...';
+        this.speechStatusText.textContent = '🎙 Dictating Phrase: Speak multiple signs (e.g. "Hello friend please thank you"), then pause to sequence.';
+      };
+
+      this.chainRecognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript.trim();
         this.speechTextInput.value = transcript;
         this.speechClearBtn.style.display = 'block';
-        this.speechStatusText.textContent = `Heard: "${transcript}" — processing sequence...`;
+        this.speechStatusText.textContent = `Phrase heard: "${transcript}" — sequencing chain...`;
+        this.speechSinglePass = false;
+        this.lastSpokenLabel = null;
         this.runSpeechSign(transcript);
       };
 
-      this.speechRecognition.onerror = (event) => {
-        console.warn('Speech recognition error:', event.error);
+      this.chainRecognition.onerror = (event) => {
+        console.warn('Chain dictation error:', event.error);
         this.speechStatusText.textContent = `Microphone notice: ${event.error}. You can also type any word directly.`;
       };
 
-      this.speechRecognition.onend = () => {
-        this.isListening = false;
-        this.micBtn.classList.remove('listening');
-        this.micLabel.textContent = 'Speak Sign';
+      this.chainRecognition.onend = () => {
+        this.isChainDictating = false;
+        this.micChainBtn.classList.remove('listening');
+        this.micChainLabel.textContent = '🎙 Dictate Phrase';
       };
 
-      this.micBtn.addEventListener('click', () => {
-        if (this.isListening) {
-          this.speechRecognition.stop();
-        } else {
-          try {
-            this.speechRecognition.start();
-          } catch (e) {
-            console.warn(e);
-          }
-        }
-      });
+      this.chainRecognition.start();
     } catch (err) {
-      console.warn('Failed to initialize SpeechRecognition:', err);
+      console.warn('Failed to start Chain Dictation:', err);
     }
+  }
+
+  stopChainDictation() {
+    this.isChainDictating = false;
+    if (this.chainRecognition) {
+      try {
+        this.chainRecognition.stop();
+      } catch (e) {}
+    }
+    if (this.micChainBtn) {
+      this.micChainBtn.classList.remove('listening');
+      this.micChainLabel.textContent = '🎙 Dictate Phrase';
+    }
+  }
+
+  async executeLiveSign(text) {
+    const tokens = this.parseInputToTerms(text);
+    const valid = tokens.find(t => t.term);
+    if (!valid) {
+      this.speechStatusText.textContent = `⚡ Live Command "${text}" not recognized in 100 ASL signs or calibration gestures. Speak another word...`;
+      return;
+    }
+
+    const termName = valid.term;
+    let data = this.cachedTerms.get(termName);
+    if (!data) {
+      try {
+        const res = await fetch(`data/terms/${termName}.json`);
+        if (res.ok) {
+          data = await res.json();
+          this.cachedTerms.set(termName, data);
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+    }
+    if (!data) return;
+
+    // Speak via TTS
+    this.tts.speak(data.label);
+
+    const isLearned = data.source === 'learned';
+    this.speechActiveWordBadge.textContent = `Signing: ${data.label}`;
+    this.speechStatusText.textContent = `⚡ Executing: "${data.label}" (${isLearned ? 'Compiled ASL sign' : 'Calibration gesture'})...`;
+    this.speechCardTitle.textContent = data.label;
+    this.speechCardBadge.className = `badge ${isLearned ? 'badge-learned' : 'badge-authored'}`;
+    this.speechCardBadge.textContent = isLearned ? 'compiled ASL' : 'calibration gesture';
+    this.speechMetaTerm.textContent = data.label;
+    this.speechMetaPhonology.textContent = `${data.location?.major || 'Neutral'} • ${data.movement || 'Natural Movement'}`;
+    this.speechMetaFrames.textContent = `${data.frame_count} frames`;
+    this.speechInspectBtn.style.display = 'inline-flex';
+    this.speechInspectBtn.href = `#/detail/${data.term}`;
+
+    this.speechSentenceRow.style.display = 'flex';
+    this.speechChipsContainer.innerHTML = `
+      <span class="sentence-chip chip-active">⚡ Live: ${data.label} (${isLearned ? 'ASL Sign' : 'Calibration Gesture'})</span>
+    `;
+
+    this.speechFrames = data.frames.map(f => ({
+      ...f,
+      termLabel: data.label,
+      termId: data.term,
+      source: data.source,
+      video: data.video,
+      calibration: data.calibration
+    }));
+    this.speechCurrentTerms = [{
+      termLabel: data.label,
+      termId: data.term,
+      source: data.source,
+      video: data.video,
+      calibration: data.calibration,
+      start: 0,
+      end: this.speechFrames.length - 1
+    }];
+    this.speechFrameIdx = 0;
+    this.speechSinglePass = true; // render once!
+
+    if (this.speechVideo) {
+      if (data.source === 'learned' && data.video) {
+        if (!this.speechVideo.src.endsWith(data.video)) {
+          this.speechVideo.src = data.video;
+          this.speechVideo.load();
+        }
+        if (data.frames[0] && data.frames[0].timestamp_s !== undefined) {
+          this.speechVideo.currentTime = data.frames[0].timestamp_s;
+        }
+      } else {
+        this.speechVideo.removeAttribute('src');
+      }
+    }
+
+    if (this.speechRenderer) {
+      this.speechRenderer.resize();
+    }
+
+    this.playSpeechLoop();
   }
 
   handleAutocomplete(query) {
@@ -1190,7 +1488,7 @@ class CKPEApp {
     this.speechAutocomplete.innerHTML = matches.map((m, idx) => `
       <div class="autocomplete-item ${idx === 0 ? 'selected' : ''}" data-term="${m.term}" data-label="${m.label}">
         <span class="autocomplete-label">${m.label}</span>
-        <span class="autocomplete-meta">${m.source} &bull; ${m.location?.major || 'Neutral'}</span>
+        <span class="autocomplete-meta">${m.source === 'learned' ? 'Compiled ASL sign' : 'Calibration gesture'} &bull; ${m.location?.major || 'Neutral'}</span>
       </div>
     `).join('');
 
@@ -1202,6 +1500,8 @@ class CKPEApp {
         this.speechTextInput.value = item.dataset.label;
         this.speechClearBtn.style.display = 'block';
         this.closeAutocomplete();
+        this.speechSinglePass = false;
+        this.lastSpokenLabel = null;
         this.runSpeechSign(item.dataset.label);
       });
     });
@@ -1211,7 +1511,11 @@ class CKPEApp {
     if (!this.speechAutocomplete || this.speechAutocomplete.style.display === 'none') {
       if (e.key === 'Enter') {
         const val = this.speechTextInput.value.trim();
-        if (val) this.runSpeechSign(val);
+        if (val) {
+          this.speechSinglePass = false;
+          this.lastSpokenLabel = null;
+          this.runSpeechSign(val);
+        }
       }
       return;
     }
@@ -1239,6 +1543,8 @@ class CKPEApp {
         const selected = items[currentIdx];
         this.speechTextInput.value = selected.dataset.label;
         this.closeAutocomplete();
+        this.speechSinglePass = false;
+        this.lastSpokenLabel = null;
         this.runSpeechSign(selected.dataset.label);
       }
     } else if (e.key === 'Escape') {
@@ -1341,7 +1647,7 @@ class CKPEApp {
 
     const recognizedTerms = tokens.filter(t => t.term).map(t => t.term);
     if (recognizedTerms.length === 0) {
-      this.speechStatusText.textContent = `No matching ASL vocabulary found for "${text}". Try "hello", "water", "friend", "thank you", or "we go right".`;
+      this.speechStatusText.textContent = `No matching vocabulary or gestures found for "${text}". Try "hello", "water", "friend", "thank you", or "point right".`;
       return;
     }
 
@@ -1456,11 +1762,30 @@ class CKPEApp {
         this.speechLastFrameTime = now;
 
         if (this.speechFrameIdx >= this.speechFrames.length) {
-          this.speechFrameIdx = 0; // loop back
+          if (this.speechSinglePass) {
+            this.pauseSpeechLoop();
+            this.speechFrameIdx = 0;
+            this.renderSpeechCurrentFrame();
+            this.speechActiveWordBadge.textContent = 'Active: Ready';
+            if (this.isLiveSpeaking) {
+              this.speechStatusText.textContent = `🟢 Ready for next sign! Speak another word (e.g. "Water", "Hello", "Thank you")...`;
+            } else {
+              this.speechStatusText.textContent = `Completed sign. Ready for input.`;
+            }
+            return;
+          } else {
+            this.speechFrameIdx = 0; // loop back
+            this.lastSpokenLabel = null;
+          }
         }
 
         const currentFrame = this.speechFrames[this.speechFrameIdx];
         if (currentFrame) {
+          // Speak when a new term begins in sentence mode
+          if (!this.speechSinglePass && currentFrame.termLabel && currentFrame.termLabel !== this.lastSpokenLabel) {
+            this.tts.speak(currentFrame.termLabel);
+            this.lastSpokenLabel = currentFrame.termLabel;
+          }
           // Sync video for the current frame
           if (this.speechVideo && currentFrame.source === 'learned' && currentFrame.video) {
             if (!this.speechVideo.src.endsWith(currentFrame.video)) {

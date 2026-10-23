@@ -50,9 +50,9 @@
           <button id="clearSearchBtn" class="clear-btn" style="display: none;">&times;</button>
         </div>
         <div class="filter-pills" id="filterPills">
-          <button class="pill-btn active" data-filter="all">All (<span id="count-all">111</span>)</button>
-          <button class="pill-btn" data-filter="learned">Learned (<span id="count-learned">100</span>)</button>
-          <button class="pill-btn" data-filter="authored">Authored (<span id="count-authored">11</span>)</button>
+          <button class="pill-btn active" data-filter="all">All Movements (<span id="count-all">111</span>)</button>
+          <button class="pill-btn" data-filter="learned">Compiled ASL (<span id="count-learned">100</span>)</button>
+          <button class="pill-btn" data-filter="authored">Calibration Gestures (<span id="count-authored">11</span>)</button>
           <button class="pill-btn" data-filter="loc-head">Head / Cranial</button>
           <button class="pill-btn" data-filter="loc-chest">Chest / Thoracic</button>
           <button class="pill-btn" data-filter="loc-neutral">Neutral Space</button>
@@ -89,6 +89,9 @@
             <div id="rewardBadge" class="reward-badge">Reward: --</div>
             <div class="canvas-header-actions">
               <button id="toggleCornerViewsBtn" class="mode-btn corner-btn" title="Toggle Side/Top/Oblique Corner Views">📐 Corner Views</button>
+              <button id="detailTtsBtn" class="mode-btn tts-btn" title="Toggle Text-to-Speech (TTS)">
+                <span class="tts-icon">🔇</span> <span class="tts-label">TTS Voice</span>
+              </button>
               <div class="overlay-mode-toggles" id="detailModeToggles">
                 <button class="mode-btn" data-mode="rig">Rig Only</button>
                 <button class="mode-btn active" data-mode="overlay">50% Overlay</button>
@@ -192,7 +195,7 @@
         <h1>Speech &amp; Text to Kinematic Sign</h1>
         <p class="hero-sub">
           Speak into your microphone or type with autocomplete to animate the 3D rig.
-          Supports single terms and multi-word sentence chaining across all 111 compiled ASL terms.
+          Supports 100 compiled ASL signs and 11 baseline calibration gestures (pointing, nodding, reset).
         </p>
       </div>
     </div>
@@ -200,14 +203,22 @@
     <!-- Speech & Keyboard Input Card -->
     <div class="speech-input-card">
       <div class="speech-controls-row">
-        <!-- Microphone Button -->
-        <button id="micBtn" class="mic-btn" title="Toggle Microphone Listening">
-          <svg class="mic-icon" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-          </svg>
-          <span id="micLabel">Speak Sign</span>
-        </button>
+        <!-- Microphone Controls: Live Interactive vs Phrase Dictation -->
+        <div class="mic-controls-group">
+          <button id="micLiveBtn" class="mic-btn mic-btn-live" title="Interactive Live Speak: Say a word, model signs once, waits for next word">
+            <svg class="mic-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+            <span id="micLiveLabel">⚡ Live Speak</span>
+          </button>
+          <button id="micChainBtn" class="mic-btn mic-btn-chain" title="Dictate Sentence / Phrase to chain into a sequence">
+            <svg class="mic-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+              <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+            <span id="micChainLabel">🎙 Dictate Phrase</span>
+          </button>
+        </div>
 
         <!-- Autocomplete Text Input -->
         <div class="speech-input-wrap">
@@ -226,7 +237,7 @@
 
       <!-- Quick Suggestion Pills -->
       <div class="speech-suggestions-row">
-        <span class="suggestions-label">Try words:</span>
+        <span class="suggestions-label">Try signs:</span>
         <button class="speech-suggestion-pill" data-text="hello">Hello</button>
         <button class="speech-suggestion-pill" data-text="thank you">Thank You</button>
         <button class="speech-suggestion-pill" data-text="water">Water</button>
@@ -234,13 +245,13 @@
         <button class="speech-suggestion-pill" data-text="father">Father</button>
         <button class="speech-suggestion-pill" data-text="mother">Mother</button>
         <button class="speech-suggestion-pill" data-text="friend">Friend</button>
-        <button class="speech-suggestion-pill" data-text="we go right">We Go Right</button>
+        <button class="speech-suggestion-pill" data-text="point right">Gesture: Point Right</button>
         <button class="speech-suggestion-pill" data-text="hello friend please thank you">Chain: Hello Friend Please Thank You</button>
       </div>
 
       <!-- Live Speech / Input Status & Recognized Chips -->
       <div id="speechStatusBanner" class="speech-status-banner">
-        <span id="speechStatusText">Type or tap the microphone to dictate a sign.</span>
+        <span id="speechStatusText">Type or tap "⚡ Live Speak" to command signs directly.</span>
       </div>
 
       <!-- Sentence Word Sequence Chips -->
@@ -258,6 +269,9 @@
           <div id="speechActiveWordBadge" class="reward-badge">Active: Ready</div>
           <div class="canvas-header-actions">
             <button id="speechCornerViewsBtn" class="mode-btn corner-btn" title="Toggle Side/Top/Oblique Inset Views">📐 Corner Views</button>
+            <button id="speechTtsBtn" class="mode-btn tts-btn" title="Toggle Text-to-Speech (TTS)">
+              <span class="tts-icon">🔇</span> <span class="tts-label">TTS Voice</span>
+            </button>
             <div class="overlay-mode-toggles" id="speechModeToggles">
               <button class="mode-btn" data-mode="rig">Rig Only</button>
               <button class="mode-btn active" data-mode="overlay">50% Overlay</button>

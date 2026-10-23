@@ -962,6 +962,33 @@ body {
   box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
 }
 
+.tts-btn {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+
+.tts-btn:hover {
+  color: var(--text-primary);
+  border-color: var(--accent-cyan);
+}
+
+.tts-btn.active {
+  background: rgba(168, 85, 247, 0.18);
+  color: #c084fc;
+  border-color: #a855f7;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.25);
+}
+
 .chain-builder-pill {
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(56, 189, 248, 0.2));
   border-color: rgba(168, 85, 247, 0.4);
@@ -1266,6 +1293,13 @@ body {
   flex-wrap: wrap;
 }
 
+.mic-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .mic-btn {
   display: flex;
   align-items: center;
@@ -1280,6 +1314,46 @@ body {
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+}
+
+.mic-btn-live {
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.mic-btn-live:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+  color: #6ee7b7;
+}
+
+.mic-btn-live.listening {
+  background: rgba(16, 185, 129, 0.28);
+  border-color: #10b981;
+  color: #a7f3d0;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.55);
+  animation: pulseMic 1.2s infinite ease-in-out;
+}
+
+.mic-btn-chain {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.mic-btn-chain:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.mic-btn-chain.listening {
+  background: rgba(244, 63, 94, 0.22);
+  border-color: #f43f5e;
+  color: #fb7185;
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.55);
+  animation: pulseMic 1.2s infinite ease-in-out;
 }
 
 .mic-btn:hover {
