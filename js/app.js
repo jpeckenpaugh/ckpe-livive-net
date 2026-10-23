@@ -1429,6 +1429,10 @@ class CKPEApp {
       }
     }
 
+    if (this.speechRenderer) {
+      this.speechRenderer.resize();
+    }
+
     // Start animated playback
     this.playSpeechLoop();
   }

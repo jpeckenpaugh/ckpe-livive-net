@@ -52,8 +52,10 @@ export class CKPERenderer {
     const w = Math.floor(rect.width);
     const h = Math.floor(rect.height);
     if (w > 0 && h > 0) {
-      this.canvas.width = w * this.dpr;
-      this.canvas.height = h * this.dpr;
+      if (this.canvas.width !== w * this.dpr || this.canvas.height !== h * this.dpr) {
+        this.canvas.width = w * this.dpr;
+        this.canvas.height = h * this.dpr;
+      }
     }
   }
 
@@ -71,13 +73,13 @@ export class CKPERenderer {
 
     // Anatomical Front View Framing:
     // Pelvis is at Y = 0, C7 at Y = 265, Head Crown at Y = 385.
-    // Center Y at ~195 (mid-torso). Vertical span ~440 units, horizontal span ~360 units.
-    const pad = 24;
-    const spanX = 360;
-    const spanY = 440;
-    const scale = Math.min((width - pad * 2) / spanX, (height - pad * 2) / spanY);
+    // Center Y at ~259 aligns with native video shoulder center Y=234 in 640x480 frame.
+    // Vertical span 480 units, horizontal span 640 units (4:3 aspect ratio).
+    const spanX = 640;
+    const spanY = 480;
+    const scale = Math.min(width / spanX, height / spanY);
     const worldCenterX = 0;
-    const worldCenterY = 195;
+    const worldCenterY = 259;
     const screenCenterX = width / 2;
     const screenCenterY = height / 2;
 
@@ -180,13 +182,13 @@ export class CKPERenderer {
   }
 
   drawFrontGrid(ctx, project) {
-    const extent = 260;
-    const step = 52;
+    const extent = 320;
+    const step = 64;
     ctx.save();
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 0.8;
 
     for (let xVal = -extent; xVal <= extent; xVal += step) {
-      const alpha = xVal === 0 ? 0.20 : 0.07;
+      const alpha = xVal === 0 ? 0.16 : 0.05;
       ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
       const a = project(v3(xVal, 0, 0));
       const b = project(v3(xVal, 480, 0));
@@ -197,7 +199,7 @@ export class CKPERenderer {
     }
 
     for (let yVal = 0; yVal <= 480; yVal += step) {
-      const alpha = yVal === 0 ? 0.24 : 0.07;
+      const alpha = yVal === 0 ? 0.18 : 0.05;
       ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
       const a = project(v3(-extent, yVal, 0));
       const b = project(v3(extent, yVal, 0));
@@ -220,14 +222,14 @@ export class CKPERenderer {
     ctx.fillStyle = 'rgba(167, 139, 250, 0.12)';
     ctx.fill();
     ctx.strokeStyle = 'rgba(192, 132, 252, 0.85)';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1.4;
     ctx.stroke();
 
     if (skel.nose) {
       const nose = project(skel.nose);
       ctx.fillStyle = 'rgba(192, 132, 252, 0.9)';
       ctx.beginPath();
-      ctx.arc(nose.x, nose.y, 3, 0, Math.PI * 2);
+      ctx.arc(nose.x, nose.y, 2, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();
@@ -246,12 +248,12 @@ export class CKPERenderer {
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
-      ctx.lineWidth = isRightArm ? 6.5 : (seg.width || 5);
+      ctx.lineWidth = isRightArm ? 3.2 : (seg.width ? Math.min(seg.width, 2.4) : 2.0);
       ctx.strokeStyle = isRightArm ? '#38bdf8' : (seg.color || '#94a3b8');
 
       if (isRightArm) {
-        ctx.shadowColor = 'rgba(56, 189, 248, 0.55)';
-        ctx.shadowBlur = 10;
+        ctx.shadowColor = 'rgba(56, 189, 248, 0.4)';
+        ctx.shadowBlur = 4;
       } else {
         ctx.shadowBlur = 0;
       }
@@ -264,16 +266,16 @@ export class CKPERenderer {
 
   drawJoints(ctx, skel, project) {
     const joints = [
-      { id: 'pelvis', pt: skel.pelvis, r: 5 },
-      { id: 'c7', pt: skel.c7, r: 5 },
-      { id: 'c1', pt: skel.c1, r: 4 },
-      { id: 'chin', pt: skel.chin, r: 4 },
-      { id: 'rightShoulder', pt: skel.rightShoulder, r: 6.5, hot: true },
-      { id: 'leftShoulder', pt: skel.leftShoulder, r: 5 },
-      { id: 'rightElbow', pt: skel.rightElbow, r: 6.5, hot: true },
-      { id: 'leftElbow', pt: skel.leftElbow, r: 5 },
-      { id: 'rightWrist', pt: skel.rightWrist, r: 6.5, hot: true },
-      { id: 'leftWrist', pt: skel.leftWrist, r: 5 }
+      { id: 'pelvis', pt: skel.pelvis, r: 2.2 },
+      { id: 'c7', pt: skel.c7, r: 2.4 },
+      { id: 'c1', pt: skel.c1, r: 2.0 },
+      { id: 'chin', pt: skel.chin, r: 2.0 },
+      { id: 'rightShoulder', pt: skel.rightShoulder, r: 3.5, hot: true },
+      { id: 'leftShoulder', pt: skel.leftShoulder, r: 2.2 },
+      { id: 'rightElbow', pt: skel.rightElbow, r: 3.5, hot: true },
+      { id: 'leftElbow', pt: skel.leftElbow, r: 2.2 },
+      { id: 'rightWrist', pt: skel.rightWrist, r: 3.5, hot: true },
+      { id: 'leftWrist', pt: skel.leftWrist, r: 2.2 }
     ];
 
     ctx.save();
@@ -283,10 +285,10 @@ export class CKPERenderer {
       ctx.arc(pt.x, pt.y, j.r, 0, Math.PI * 2);
       ctx.fillStyle = j.hot ? '#0284c7' : '#334155';
       ctx.strokeStyle = j.hot ? '#e0f2fe' : '#94a3b8';
-      ctx.lineWidth = j.hot ? 2 : 1.5;
+      ctx.lineWidth = j.hot ? 1.2 : 1.0;
       if (j.hot) {
         ctx.shadowColor = '#38bdf8';
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 4;
       } else {
         ctx.shadowBlur = 0;
       }
@@ -338,10 +340,10 @@ export class CKPERenderer {
   // Corner View Insets: Side, Top, and 3D Oblique
   // --------------------------------------------------------------------------
   drawCornerInsets(ctx, skel, canvasW, canvasH) {
-    // Inset dimensions
-    const pipW = Math.max(105, Math.min(150, Math.floor(canvasW * 0.22)));
-    const pipH = Math.max(90, Math.min(130, Math.floor(canvasH * 0.25)));
-    const pad = 12;
+    // Inset dimensions (compact PiP thumbnails)
+    const pipW = Math.max(68, Math.min(100, Math.floor(canvasW * 0.15)));
+    const pipH = Math.max(54, Math.min(80, Math.floor(canvasH * 0.16)));
+    const pad = 8;
 
     const insets = [
       {
@@ -445,7 +447,7 @@ export class CKPERenderer {
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
       ctx.lineTo(b.x, b.y);
-      ctx.lineWidth = isRightArm ? 3.5 : 2.5;
+      ctx.lineWidth = isRightArm ? 2.0 : 1.2;
       ctx.strokeStyle = isRightArm ? '#38bdf8' : (seg.color || '#64748b');
       ctx.stroke();
     });
@@ -459,7 +461,7 @@ export class CKPERenderer {
       ctx.fillStyle = 'rgba(167, 139, 250, 0.15)';
       ctx.fill();
       ctx.strokeStyle = 'rgba(192, 132, 252, 0.7)';
-      ctx.lineWidth = 1.2;
+      ctx.lineWidth = 1.0;
       ctx.stroke();
     }
 
@@ -468,7 +470,7 @@ export class CKPERenderer {
     joints.forEach((pt, idx) => {
       const s = pipProject(pt);
       ctx.beginPath();
-      ctx.arc(s.x, s.y, idx >= 2 && idx % 2 === 0 ? 3 : 2, 0, Math.PI * 2);
+      ctx.arc(s.x, s.y, idx >= 2 && idx % 2 === 0 ? 1.8 : 1.2, 0, Math.PI * 2);
       ctx.fillStyle = idx >= 2 && idx % 2 === 0 ? '#38bdf8' : '#94a3b8';
       ctx.fill();
     });
@@ -476,15 +478,15 @@ export class CKPERenderer {
     // 7. Draw camera label pill
     ctx.restore();
     ctx.save();
-    ctx.font = '700 9px ui-monospace, SFMono-Regular, monospace';
+    ctx.font = '700 8px ui-monospace, SFMono-Regular, monospace';
     ctx.fillStyle = 'rgba(2, 6, 23, 0.85)';
-    const labelW = ctx.measureText(camera.label).width + 8;
-    ctx.fillRect(x + 5, y + 5, labelW, 14);
+    const labelW = ctx.measureText(camera.label).width + 6;
+    ctx.fillRect(x + 4, y + 4, labelW, 12);
     ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 0.8;
-    ctx.strokeRect(x + 5, y + 5, labelW, 14);
+    ctx.lineWidth = 0.6;
+    ctx.strokeRect(x + 4, y + 4, labelW, 12);
     ctx.fillStyle = '#38bdf8';
-    ctx.fillText(camera.label, x + 9, y + 15);
+    ctx.fillText(camera.label, x + 7, y + 13);
     ctx.restore();
   }
 }
